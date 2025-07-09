@@ -1,0 +1,58 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 1rem;
+  background: #faf8f4;
+  color: #333;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.disclaimer {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.tabs {
+  margin-top: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  background: #e0dcdc;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #d4cfcf;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.card img {
+  max-width: 80px;
+  height: auto;
+}
+
+.hidden {
+  display: none;
+}
