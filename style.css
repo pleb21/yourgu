@@ -16,51 +16,13 @@ header {
   color: #666;
 }
 
-
-button {
-  padding: 0.5rem 1rem;
-  margin: 0 0.5rem;
-  background: #e0dcdc;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #d4cfcf;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  max-width: 900px;
-  margin: auto;
-}
-
-.card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
-}
-
-.card img {
-  width: 60px;
-  height: auto;
-}
-
-.card h3 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.card p {
-  margin: 0.25rem 0 0;
-  font-size: 0.95rem;
+.intro {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: #444;
+  text-align: center;
 }
 
 .info-section {
@@ -69,28 +31,100 @@ button:hover {
   padding: 1rem;
 }
 
+.poop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
 
+.poop-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  text-align: center;
+  color: #333;
+}
 
-.hidden {
-  display: none;
+.poop-label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.poop-label.good {
+  background: #d4edda;
+  color: #155724;
+}
+
+.poop-label.caution {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.poop-label.danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.poop-card img {
+  width: 80%;
+  max-width: 240px;
+  height: auto;
+  margin: 0.5rem 0;
+}
+
+.poop-card p {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+  margin: 0.5rem 0 0;
 }
 
 @media (max-width: 768px) {
-  .card {
-    flex-direction: column;
-    align-items: flex-start;
+  .poop-card {
+    padding: 0.75rem;
   }
 
-  .card img {
-    width: 48px;
-    margin-bottom: 0.5rem;
-  }
-
-  .card h3 {
+  .poop-title {
     font-size: 1rem;
   }
 
-  .card p {
+  .poop-card img {
+    width: 100%;
+  }
+
+  .poop-card p {
     font-size: 0.85rem;
   }
+
+  .poop-label {
+    font-size: 0.8rem;
+  }
+}
+
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  background: #f0f0f0;
+  margin-top: 3rem;
+}
+
+.site-footer p {
+  margin: 0.5rem 0;
+}
+
+.footer-note {
+  font-style: italic;
+  max-width: 600px;
+  margin: 0.5rem auto 0;
+  color: #777;
 }
