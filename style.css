@@ -49,10 +49,39 @@ button:hover {
 }
 
 .card img {
-  max-width: 80px;
+  width: 60px;
   height: auto;
+  margin-bottom: 0.5rem;
 }
+
 
 .hidden {
   display: none;
 }
+
+.poop-spectrum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 2rem;
+}
+
+.poop-strip {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0;
+  max-width: 100%;
+}
+
+.poop-strip .card {
+  min-width: 180px;
+  flex: 0 0 auto;
+}
+
+.spectrum-label {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  color: #888;
+}
+
