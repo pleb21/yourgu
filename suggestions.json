@@ -1,0 +1,20 @@
+{
+  "shapes": {
+    "type1": "You may be dehydrated or lacking fiber. Try drinking more water and eating whole grains or fruits.",
+    "type2": "Still a bit constipated. Add vegetables, beans, or oats to your meals.",
+    "type3": "Close to healthy! Keep up the fiber and hydration.",
+    "type4": "Perfect poop. Don't change a thing. Your gut is thriving.",
+    "type5": "Slightly soft — might be stress, spicy food, or a rushed system.",
+    "type6": "This is edging toward diarrhea. Lay off greasy food and hydrate.",
+    "type7": "This is diarrhea. Hydrate, rest, and consider what tried to kill you from the inside."
+  },
+  "colors": {
+    "brown": "This is healthy and ideal. You're digesting normally.",
+    "orange": "Could be from carrots or antacids. Keep an eye on it if persistent.",
+    "green": "Food might be moving too fast. Or you ate spinach. Either way, chill.",
+    "yellow": "Could indicate fat absorption issues. If frequent, talk to a doctor.",
+    "red": "Could be blood, could be beets. If unsure, don't gamble.",
+    "black": "Could be iron supplements or internal bleeding. Monitor it.",
+    "pale": "Lack of bile flow. See a doctor if this happens regularly."
+  }
+}

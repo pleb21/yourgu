@@ -26,6 +26,28 @@ header {
   text-align: center;
 }
 
+.poop-suggestion {
+  font-size: 0.85rem;
+  color: #444;
+  text-align: left;
+  margin-top: 0.75rem;
+  background: #f4f4f4;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.poop-suggestion hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 0 0 0.5rem 0;
+}
+
+.suggestion-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 0.25rem;
+}
 
 /* === Section Layout === */
 .info-section {
@@ -52,6 +74,7 @@ header {
 
 /* === Poop Cards === */
 .poop-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,6 +84,7 @@ header {
   margin-bottom: 1.5rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
+
 
 .poop-title {
   font-size: 1.1rem;
@@ -150,6 +174,39 @@ header {
 .subtle-link:hover {
   color: #555;
   text-decoration: underline;
+}
+
+.suggestion-toggle {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.suggestion-toggle:hover {
+  opacity: 1;
+}
+
+.suggestion-text {
+  font-size: 0.85rem;
+  margin-top: 1.5rem;
+  color: #444;
+  text-align: left;
+  margin-top: 0.5rem;
+  background: #f8f8f8;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.hidden {
+  display: none;
 }
 
 
