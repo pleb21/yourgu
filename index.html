@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yourgu - What's Your Poop Telling You?</title>
   <link rel="stylesheet" href="style.css" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q1MBRVVW5H"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-Q1MBRVVW5H');
+    </script>
 </head>
 <body>
   <header>
@@ -24,55 +34,56 @@
             <h2>Poop Shapes</h2>
             <a href="#color-section" class="jump-link subtle-link">→ Jump to Colors</a>
         </div>
+        <div class="poop-grid">
+            <div class="poop-card">
+                <h3 class="poop-title">Hard Small Pellets</h3>
+                <span class="poop-label danger">Highly Constipated</span>
+                <img src="assets/type1.svg" alt="Type 1 poop">
+                <p>Hard lumps, like nuts. Classic constipation. Textbook rabbit nuggets.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Hard Small Pellets</h3>
-        <span class="poop-label danger">Highly Constipated</span>
-        <img src="assets/type1.svg" alt="Type 1 poop">
-        <p>Hard lumps, like nuts. Classic constipation. Textbook rabbit nuggets.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Lumpy Sausage</h3>
+                <span class="poop-label danger">Constipated</span>
+                <img src="assets/type2.svg" alt="Type 2 poop">
+                <p>Lumpy sausage. Still constipated, but now with ambition.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Lumpy Sausage</h3>
-        <span class="poop-label danger">Constipated</span>
-        <img src="assets/type2.svg" alt="Type 2 poop">
-        <p>Lumpy sausage. Still constipated, but now with ambition.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Cracked Log</h3>
+                <span class="poop-label caution">Borderline Normal</span>
+                <img src="assets/type3.svg" alt="Type 3 poop">
+                <p>Cracked log. Approaching normalcy. Like your GPA, it's borderline passable.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Cracked Log</h3>
-        <span class="poop-label caution">Borderline Normal</span>
-        <img src="assets/type3.svg" alt="Type 3 poop">
-        <p>Cracked log. Approaching normalcy. Like your GPA, it's borderline passable.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Smooth Sausage</h3>
+                <span class="poop-label good">Normal</span>
+                <img src="assets/type4.svg" alt="Type 4 poop">
+                <p>Perfectly smooth sausage. This is your digestive system's Mona Lisa.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Smooth Sausage</h3>
-        <span class="poop-label good">Normal</span>
-        <img src="assets/type4.svg" alt="Type 4 poop">
-        <p>Perfectly smooth sausage. This is your digestive system's Mona Lisa.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Soft Blobs</h3>
+                <span class="poop-label caution">Mild Diarrhea</span>
+                <img src="assets/type5.svg" alt="Type 5 poop">
+                <p>Soft blobs. You're one bad meal away from diarrhea.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Soft Blobs</h3>
-        <span class="poop-label caution">Mild Diarrhea</span>
-        <img src="assets/type5.svg" alt="Type 5 poop">
-        <p>Soft blobs. You're one bad meal away from diarrhea.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Mushy Mess</h3>
+                <span class="poop-label danger">Diarrhea</span>
+                <img src="assets/type6.svg" alt="Type 6 poop">
+                <p>Mushy, ragged edges. This poop gave up halfway through.</p>
+            </div>
 
-      <div class="poop-card">
-        <h3 class="poop-title">Mushy Mess</h3>
-        <span class="poop-label danger">Diarrhea</span>
-        <img src="assets/type6.svg" alt="Type 6 poop">
-        <p>Mushy, ragged edges. This poop gave up halfway through.</p>
-      </div>
-
-      <div class="poop-card">
-        <h3 class="poop-title">Liquid Puddle</h3>
-        <span class="poop-label danger">Severe Diarrhea</span>
-        <img src="assets/type7.svg" alt="Type 7 poop">
-        <p>Watery. No solid pieces. Basically a horror story in your toilet bowl.</p>
-      </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Liquid Puddle</h3>
+                <span class="poop-label danger">Severe Diarrhea</span>
+                <img src="assets/type7.svg" alt="Type 7 poop">
+                <p>Watery. No solid pieces. Basically a horror story in your toilet bowl.</p>
+            </div>
+        </div>
     </section>
 
     <section id="color-section" class="info-section">
@@ -80,53 +91,55 @@
             <h2>Poop Colors</h2>
             <a href="#shape-section" class="jump-link subtle-link">← Back to Shapes</a>
         </div>
-        <div class="poop-card">
-            <h3 class="poop-title">Brown</h3>
-            <span class="poop-label good">Normal</span>
-            <img src="assets/brown.svg" alt="Brown poop">
-            <p>Normal. Classic. This is what nature intended.</p>
-        </div>
+        <div class="poop-grid">
+            <div class="poop-card">
+                <h3 class="poop-title">Brown</h3>
+                <span class="poop-label good">Normal</span>
+                <img src="assets/brown.svg" alt="Brown poop">
+                <p>Normal. Classic. This is what nature intended.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Orange</h3>
-            <span class="poop-label caution">Usually Harmless</span>
-            <img src="assets/orange.svg" alt="Orange poop">
-            <p>Too many carrots or antacids. Not scary, just weird.</p>
-        </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Orange</h3>
+                <span class="poop-label caution">Usually Harmless</span>
+                <img src="assets/orange.svg" alt="Orange poop">
+                <p>Too many carrots or antacids. Not scary, just weird.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Green</h3>
-            <span class="poop-label caution">Diet/Transit Issue</span>
-            <img src="assets/green.svg" alt="Green poop">
-            <p>Leafy diet or fast digestion. Chill unless it glows.</p>
-        </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Green</h3>
+                <span class="poop-label caution">Diet/Transit Issue</span>
+                <img src="assets/green.svg" alt="Green poop">
+                <p>Leafy diet or fast digestion. Chill unless it glows.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Yellow</h3>
-            <span class="poop-label danger">Possible Malabsorption</span>
-            <img src="assets/yellow.svg" alt="Yellow poop">
-            <p>Greasy? Might be fat absorption issues. Monitor it.</p>
-        </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Yellow</h3>
+                <span class="poop-label danger">Possible Malabsorption</span>
+                <img src="assets/yellow.svg" alt="Yellow poop">
+                <p>Greasy? Might be fat absorption issues. Monitor it.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Red</h3>
-            <span class="poop-label danger">Possible Blood</span>
-            <img src="assets/red.svg" alt="Red poop">
-            <p>Could be beets. Could be blood. Flip a coin or call a doctor.</p>
-        </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Red</h3>
+                <span class="poop-label danger">Possible Blood</span>
+                <img src="assets/red.svg" alt="Red poop">
+                <p>Could be beets. Could be blood. Flip a coin or call a doctor.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Black</h3>
-            <span class="poop-label danger">Internal Bleeding?</span>
-            <img src="assets/black.svg" alt="Black poop">
-            <p>Iron pills or internal bleeding. Don't ignore it.</p>
-        </div>
+            <div class="poop-card">
+                <h3 class="poop-title">Black</h3>
+                <span class="poop-label danger">Internal Bleeding?</span>
+                <img src="assets/black.svg" alt="Black poop">
+                <p>Iron pills or internal bleeding. Don't ignore it.</p>
+            </div>
 
-        <div class="poop-card">
-            <h3 class="poop-title">Pale / Clay</h3>
-            <span class="poop-label danger">Liver/Bile Issue</span>
-            <img src="assets/pale.svg" alt="Pale poop">
-            <p>No bile = no bueno. Could be liver/gallbladder issues.</p>
+            <div class="poop-card">
+                <h3 class="poop-title">Pale / Clay</h3>
+                <span class="poop-label danger">Liver/Bile Issue</span>
+                <img src="assets/pale.svg" alt="Pale poop">
+                <p>No bile = no bueno. Could be liver/gallbladder issues.</p>
+            </div>
         </div>
     </section>
   </main>
