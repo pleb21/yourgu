@@ -35,32 +35,35 @@ fetch('suggestions.json')
 
   // quiz section
   function loadQuiz() {
+    let questionsPlayed = 0;
   fetch('quiz.json')
     .then(response => response.json())
     .then(questions => {
+      questions = questions.sort(() => Math.random() - 0.5)
       const container = document.querySelector('#quiz-container .quiz-inner');
       let currentQuestion = 0;
       let score = 0;
 
       function showQuestion(index) {
-  const q = questions[index];
-  container.innerHTML = `
-    <div class="quiz-meta">
-      <span>Question ${index + 1} of ${questions.length}</span>
-      <span>Score: ${score}</span>
-    </div>
+        const q = questions[index];
+        questionsPlayed++;
+        container.innerHTML = `
+          <div class="quiz-meta">
+            <span>Question ${index + 1} of ${questions.length}</span>
+            <span>Score: ${score}</span>
+          </div>
 
-    <div class="quiz-question">
-      <p><strong>Q${q.id}:</strong> ${q.question}</p>
-      <ul class="quiz-options">
-        ${q.options.map(option => `
-          <li><button class="quiz-option">${option}</button></li>
-        `).join('')}
-      </ul>
-      <p class="quiz-feedback"></p>
-      <button id="quit-quiz" class="quit-button">End Quiz</button>
-    </div>
-  `;
+          <div class="quiz-question">
+            <p><strong>Q:</strong> ${q.question}</p>
+            <ul class="quiz-options">
+              ${q.options.map(option => `
+                <li><button class="quiz-option">${option}</button></li>
+              `).join('')}
+            </ul>
+            <p class="quiz-feedback"></p>
+            <button id="quit-quiz" class="quit-button">End Quiz</button>
+          </div>
+        `;
 
   document.querySelectorAll('.quiz-option').forEach(button => {
     button.addEventListener('click', () => {
@@ -91,7 +94,7 @@ fetch('suggestions.json')
 function showResult() {
   container.innerHTML = `
     <div class="quiz-result">
-      <p>🎉 You scored ${score} out of ${questions.length}!</p>
+      <p>🎉 You got ${score} correct out of ${questionsPlayed} questions played!</p>
       <button id="restart-quiz">Retry Quiz</button>
     </div>
   `;
