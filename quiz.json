@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "question": "Which poop type is considered the healthiest?",
+    "options": ["Type 2", "Type 4", "Type 6"],
+    "answer": "Type 4"
+  },
+  {
+    "id": 2,
+    "question": "What can cause green poop?",
+    "options": ["Too much sugar", "Spinach or fast digestion", "Dehydration"],
+    "answer": "Spinach or fast digestion"
+  },
+  {
+    "id": 3,
+    "question": "What is the average number of bowel movements per week for a healthy adult?",
+    "options": ["2–3", "7–10", "3–21"],
+    "answer": "3–21"
+  }
+]
