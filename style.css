@@ -299,3 +299,43 @@ header {
   border: none;
   cursor: pointer;
 }
+
+#quiz-container {
+  max-width: 600px;
+  margin-top: 1rem;
+}
+
+.quiz-inner {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+.quiz-intro {
+  text-align: center;
+  font-size: 1rem;
+  margin: 0 auto 1rem;
+  color: #555;
+  max-width: 600px;
+}
+.quiz-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.quit-button {
+  margin-top: 1rem;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.quit-button:hover {
+  background: #eee;
+}

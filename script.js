@@ -38,64 +38,71 @@ fetch('suggestions.json')
   fetch('quiz.json')
     .then(response => response.json())
     .then(questions => {
-      const container = document.getElementById('quiz-container');
+      const container = document.querySelector('#quiz-container .quiz-inner');
       let currentQuestion = 0;
       let score = 0;
 
       function showQuestion(index) {
-        const q = questions[index];
-        container.innerHTML = `
-          <div class="quiz-question">
-            <p><strong>Q${q.id}:</strong> ${q.question}</p>
-            <ul class="quiz-options">
-              ${q.options.map(option => `
-                <li>
-                  <button class="quiz-option">${option}</button>
-                </li>
-              `).join('')}
-            </ul>
-            <p class="quiz-feedback"></p>
-          </div>
-        `;
+  const q = questions[index];
+  container.innerHTML = `
+    <div class="quiz-meta">
+      <span>Question ${index + 1} of ${questions.length}</span>
+      <span>Score: ${score}</span>
+    </div>
 
-        document.querySelectorAll('.quiz-option').forEach(button => {
-          button.addEventListener('click', () => {
-            const feedback = document.querySelector('.quiz-feedback');
-            if (button.textContent === q.answer) {
-              feedback.textContent = '✅ Correct!';
-              score++;
-            } else {
-              feedback.textContent = `❌ Nope. Correct answer: ${q.answer}`;
-            }
+    <div class="quiz-question">
+      <p><strong>Q${q.id}:</strong> ${q.question}</p>
+      <ul class="quiz-options">
+        ${q.options.map(option => `
+          <li><button class="quiz-option">${option}</button></li>
+        `).join('')}
+      </ul>
+      <p class="quiz-feedback"></p>
+      <button id="quit-quiz" class="quit-button">End Quiz</button>
+    </div>
+  `;
 
-            // Disable all buttons
-            document.querySelectorAll('.quiz-option').forEach(btn => {
-              btn.disabled = true;
-            });
-
-            // Show next after 1s
-            setTimeout(() => {
-              currentQuestion++;
-              if (currentQuestion < questions.length) {
-                showQuestion(currentQuestion);
-              } else {
-                container.innerHTML = `
-                  <div class="quiz-result">
-                    <p>🎉 You scored ${score} out of ${questions.length}!</p>
-                    <button id="restart-quiz">Retry Quiz</button>
-                  </div>
-                `;
-
-                document.getElementById('restart-quiz').addEventListener('click', () => {
-                  currentQuestion = 0;
-                  score = 0;
-                  showQuestion(currentQuestion);
-                });
-              }
-            }, 1000);
-          });
-        });
+  document.querySelectorAll('.quiz-option').forEach(button => {
+    button.addEventListener('click', () => {
+      const feedback = document.querySelector('.quiz-feedback');
+      if (button.textContent === q.answer) {
+        feedback.textContent = '✅ Correct!';
+        score++;
+      } else {
+        feedback.textContent = `❌ Nope. Correct answer: ${q.answer}`;
       }
+
+      document.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          showQuestion(currentQuestion);
+        } else {
+          showResult();
+        }
+      }, 1000);
+    });
+  });
+
+  document.getElementById('quit-quiz').addEventListener('click', showResult);
+}
+
+function showResult() {
+  container.innerHTML = `
+    <div class="quiz-result">
+      <p>🎉 You scored ${score} out of ${questions.length}!</p>
+      <button id="restart-quiz">Retry Quiz</button>
+    </div>
+  `;
+
+  document.getElementById('restart-quiz').addEventListener('click', () => {
+    currentQuestion = 0;
+    score = 0;
+    showQuestion(currentQuestion);
+  });
+}
+
 
       showQuestion(currentQuestion);
     })
