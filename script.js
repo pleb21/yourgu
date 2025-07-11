@@ -99,11 +99,13 @@ function showResult() {
     </div>
   `;
 
-  document.getElementById('restart-quiz').addEventListener('click', () => {
+    document.getElementById('restart-quiz').addEventListener('click', () => {
     currentQuestion = 0;
     score = 0;
+    questionsPlayed = 0;
     showQuestion(currentQuestion);
   });
+
 }
 
 
@@ -118,3 +120,20 @@ function showResult() {
 // Trigger when quiz section comes into view or is linked
 document.addEventListener("DOMContentLoaded", loadQuiz);
 
+function loadFacts() {
+  fetch('facts.json')
+    .then(r => r.json())
+    .then(data => {
+      const factText = document.getElementById('fact-text');
+      const btn = document.getElementById('new-fact');
+      function showRandom() {
+        const fact = data[Math.floor(Math.random() * data.length)];
+        factText.textContent = fact.text;
+      }
+      showRandom();
+      btn.addEventListener('click', showRandom);
+    })
+    .catch(err => console.error('Facts load error:', err));
+}
+
+document.addEventListener('DOMContentLoaded', loadFacts);

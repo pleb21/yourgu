@@ -339,3 +339,36 @@ header {
 .quit-button:hover {
   background: #eee;
 }
+
+/* facts styling */
+#facts-container {
+  margin: 1rem auto;
+  padding: 1rem;
+  background: #fff7d9;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  max-width: 600px;
+  text-align: center;
+}
+
+#fact-text {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: #444;
+  line-height: 1.4;
+}
+
+#new-fact {
+  margin-top: 1rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background: #f8d44c;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#new-fact:hover {
+  background: #f1c40f;
+}
+
