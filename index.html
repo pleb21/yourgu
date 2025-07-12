@@ -178,8 +178,62 @@
             </div>
         </div>
     </section>
+    <section id="log-section" class="info-section">
+        <div class="section-header">
+            <h2>Poop Log</h2>
+            <a href="#facts-section" class="jump-link subtle-link">← Back to Poop Facts</a>
+        </div>
+        
+        <form id="poop-form">
+            <div class="icon-picker" id="shape-picker">
+            <p>Select Shape:</p>
+            <div class="picker-grid">
+                <img src="assets/type1.svg" alt="Type 1" data-value="Type 1" class="picker-icon">
+                <img src="assets/type2.svg" alt="Type 2" data-value="Type 2" class="picker-icon">
+                <img src="assets/type3.svg" alt="Type 3" data-value="Type 3" class="picker-icon">
+                <img src="assets/type4.svg" alt="Type 4" data-value="Type 4" class="picker-icon">
+                <img src="assets/type5.svg" alt="Type 5" data-value="Type 5" class="picker-icon">
+                <img src="assets/type6.svg" alt="Type 6" data-value="Type 6" class="picker-icon">
+                <img src="assets/type7.svg" alt="Type 7" data-value="Type 7" class="picker-icon">
+            </div>
+            <input type="hidden" id="poop-shape">
+            </div>
+
+            <div class="icon-picker" id="color-picker">
+            <p>Select Color:</p>
+            <div class="picker-grid">
+                <img src="assets/brown.svg" alt="Brown" data-value="Brown" class="picker-icon">
+                <img src="assets/orange.svg" alt="Orange" data-value="Orange" class="picker-icon">
+                <img src="assets/green.svg" alt="Green" data-value="Green" class="picker-icon">
+                <img src="assets/yellow.svg" alt="Yellow" data-value="Yellow" class="picker-icon">
+                <img src="assets/red.svg" alt="Red" data-value="Red" class="picker-icon">
+                <img src="assets/black.svg" alt="Black" data-value="Black" class="picker-icon">
+                <img src="assets/pale.svg" alt="Pale" data-value="Pale" class="picker-icon">
+            </div>
+            <input type="hidden" id="poop-color">
+            </div>
+
+            <label>
+            Notes:
+            <textarea id="poop-notes" placeholder="Optional notes..."></textarea>
+            </label>
+
+            <button type="submit">Log Poop 💾</button>
+        </form>
+
+        <div id="poop-history">
+            <h3>Poop History</h3><p style="font-size: 0.8em; color: brown;">The history is stored locally in YOUR browser</p>
+            <ul id="poop-entries"></ul>
+        </div>
+    </section>
   </main>
     <footer class="site-footer">
+        <div class="share-buttons">
+            <span>Share this</span>
+            <a href="#" class="share-btn" id="share-whatsapp">WhatsApp</a>
+            <a href="#" class="share-btn" id="share-twitter">Twitter</a>
+            <a href="#" class="share-btn" id="share-email">Email</a>
+        </div>
         <p>Made with 💩 and mild regret.</p>
         <p class="footer-note">
             Talking about poop shouldn't be taboo. It's a natural part of health — the more we normalize it, the better we understand our bodies.

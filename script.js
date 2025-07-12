@@ -137,3 +137,66 @@ function loadFacts() {
 }
 
 document.addEventListener('DOMContentLoaded', loadFacts);
+
+/* === Poop Log === */
+function loadPoopHistory() {
+  const list = document.getElementById('poop-entries');
+  list.innerHTML = '';
+
+  const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
+  poopLog.forEach(entry => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${entry.date}</strong><br>
+      <img src="assets/${entry.shape.toLowerCase().replace(' ', '')}.svg" alt="${entry.shape}" width="30">
+      <img src="assets/${entry.color.toLowerCase()}.svg" alt="${entry.color}" width="30">
+      Notes: ${entry.notes || '<em>None</em>'}
+    `;
+    list.appendChild(li);
+  });
+}
+
+function setupPicker(pickerId, inputId) {
+  document.querySelectorAll(`#${pickerId} .picker-icon`).forEach(img => {
+    img.addEventListener('click', () => {
+      document.querySelectorAll(`#${pickerId} .picker-icon`).forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
+      document.getElementById(inputId).value = img.getAttribute('data-value');
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  /* Quiz & Facts init... */
+  loadPoopHistory();
+  setupPicker('shape-picker', 'poop-shape');
+  setupPicker('color-picker', 'poop-color');
+
+  document.getElementById('poop-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const shape = document.getElementById('poop-shape').value;
+    const color = document.getElementById('poop-color').value;
+    const notes = document.getElementById('poop-notes').value;
+    if (!shape || !color) {
+      alert('Pick both shape and color.');
+      return;
+    }
+    const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
+    poopLog.unshift({
+      shape, color, notes,
+      date: new Date().toLocaleString()
+    });
+    localStorage.setItem('poopLog', JSON.stringify(poopLog));
+    document.getElementById('poop-form').reset();
+    document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
+    loadPoopHistory();
+  });
+
+  /* Share buttons */
+  document.getElementById('share-whatsapp').href =
+    `https://wa.me/?text=Check%20out%20my%20poop%20log%20at%20${encodeURIComponent(location.href)}`;
+  document.getElementById('share-twitter').href =
+    `https://twitter.com/intent/tweet?text=Check%20out%20my%20poop%20log%20at%20my%20site!&url=${encodeURIComponent(location.href)}`;
+  document.getElementById('share-email').href =
+    `mailto:?subject=Look%20at%20my%20poop%20log&body=Check%20it%20out%20${encodeURIComponent(location.href)}`;
+});
