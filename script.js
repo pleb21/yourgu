@@ -38,6 +38,7 @@ fetch('suggestions.json')
 // === Quiz Section ===
 function loadQuiz() {
   let questionsPlayed = 0;
+
   fetch('quiz.json')
     .then(response => response.json())
     .then(questions => {
@@ -46,9 +47,15 @@ function loadQuiz() {
       let currentQuestion = 0;
       let score = 0;
 
+      function shuffleArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+      }
+
       function showQuestion(index) {
         const q = questions[index];
         questionsPlayed++;
+        const shuffledOptions = shuffleArray([...q.options]);
+
         container.innerHTML = `
           <div class="quiz-meta">
             <span>Question ${index + 1} of ${questions.length}</span>
@@ -58,8 +65,10 @@ function loadQuiz() {
           <div class="quiz-question">
             <p><strong>Q:</strong> ${q.question}</p>
             <ul class="quiz-options">
-              ${q.options.map(option => `
-                <li><button class="quiz-option">${option}</button></li>
+              ${shuffledOptions.map(option => `
+                <li>
+                  <button class="quiz-option" data-answer="${option}">${option}</button>
+                </li>
               `).join('')}
             </ul>
             <p class="quiz-feedback"></p>
@@ -70,7 +79,10 @@ function loadQuiz() {
         document.querySelectorAll('.quiz-option').forEach(button => {
           button.addEventListener('click', () => {
             const feedback = document.querySelector('.quiz-feedback');
-            if (button.textContent === q.answer) {
+            const selected = button.getAttribute('data-answer');
+            const isCorrect = selected === q.answer;
+
+            if (isCorrect) {
               feedback.textContent = '✅ Correct!';
               score++;
             } else {
@@ -117,19 +129,26 @@ function loadQuiz() {
     });
 }
 
+
 // === Facts ===
 function loadFacts() {
   fetch('facts.json')
     .then(r => r.json())
     .then(data => {
       const factText = document.getElementById('fact-text');
-      const btn = document.getElementById('new-fact');
+      const newFactBtn = document.getElementById('new-fact');
+
+      let currentFact = '';
+
       function showRandom() {
         const fact = data[Math.floor(Math.random() * data.length)];
         factText.textContent = fact.text;
+        currentFact = fact.text;
       }
       showRandom();
-      btn.addEventListener('click', showRandom);
+
+      newFactBtn.addEventListener('click', showRandom);
+
     })
     .catch(err => console.error('Facts load error:', err));
 }
@@ -215,6 +234,32 @@ function setupPicker(pickerId, inputId) {
     });
   });
 }
+
+// sharing content
+function shareContent(platform, message) {
+  const url = encodeURIComponent('https://yourgu.com');
+  const text = encodeURIComponent(message);
+
+  let shareUrl = '';
+
+  switch (platform) {
+    case 'whatsapp':
+      shareUrl = `https://wa.me/?text=${text}%20${url}`;
+      break;
+    case 'twitter':
+      shareUrl = `https://twitter.com/intent/tweet?text=${text}%20${url}`;
+      break;
+    case 'email':
+      shareUrl = `mailto:?subject=Poop Fact from yourgu.com&body=${text}%20${url}`;
+      break;
+    default:
+      alert('Unsupported platform');
+      return;
+  }
+
+  window.open(shareUrl, '_blank');
+}
+
 
 // === Main DOM Ready Block ===
 document.addEventListener('DOMContentLoaded', () => {
