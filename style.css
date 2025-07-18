@@ -26,29 +26,6 @@ header {
   text-align: center;
 }
 
-.poop-suggestion {
-  font-size: 0.85rem;
-  color: #444;
-  text-align: left;
-  margin-top: 0.75rem;
-  background: #f4f4f4;
-  padding: 0.5rem;
-  border-radius: 6px;
-}
-
-.poop-suggestion hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 0 0 0.5rem 0;
-}
-
-.suggestion-label {
-  display: block;
-  font-size: 0.8rem;
-  color: #777;
-  margin-bottom: 0.25rem;
-}
-
 /* === Section Layout === */
 .info-section {
   max-width: 1000px;
@@ -63,16 +40,53 @@ header {
   margin-bottom: 1rem;
 }
 
+/* === Utility Links === */
+.jump-link, .subtle-link {
+  font-size: 0.95rem;
+  color: #0066cc;
+  text-decoration: none;
+}
 
-/* === Grid Layout === */
-.poop-grid {
+.jump-link:hover, .subtle-link:hover {
+  text-decoration: underline;
+  color: #555;
+}
+
+/* navigation style */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ddd;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.top-nav a {
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: #333;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.top-nav a:hover {
+  background: #eee;
 }
 
 
 /* === Poop Cards === */
+.poop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
 .poop-card {
   position: relative;
   display: flex;
@@ -81,10 +95,8 @@ header {
   background: #fff;
   border-radius: 8px;
   padding: 1rem;
-  margin-bottom: 1.5rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
-
 
 .poop-title {
   font-size: 1.1rem;
@@ -106,12 +118,10 @@ header {
   background: #d4edda;
   color: #155724;
 }
-
 .poop-label.caution {
   background: #fff3cd;
   color: #856404;
 }
-
 .poop-label.danger {
   background: #f8d7da;
   color: #721c24;
@@ -128,52 +138,23 @@ header {
   font-size: 0.9rem;
   color: #555;
   text-align: center;
-  margin: 0.5rem 0 0;
 }
 
-
-/* === Footer === */
-.site-footer {
-  text-align: center;
-  padding: 2rem 1rem;
-  font-size: 0.9rem;
-  color: #666;
-  background: #f0f0f0;
-  margin-top: 3rem;
-}
-
-.site-footer p {
-  margin: 0.5rem 0;
-}
-
-.footer-note {
-  font-style: italic;
-  max-width: 600px;
-  margin: 0.5rem auto 0;
-  color: #777;
-}
-
-
-/* === Utility Links === */
-.jump-link {
-  font-size: 0.95rem;
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.jump-link:hover {
-  text-decoration: underline;
-}
-
-.subtle-link {
+/* === Suggestions === */
+.poop-suggestion {
   font-size: 0.85rem;
-  color: #888;
-  text-decoration: none;
+  color: #444;
+  margin-top: 0.75rem;
+  background: #f4f4f4;
+  padding: 0.5rem;
+  border-radius: 6px;
 }
 
-.subtle-link:hover {
-  color: #555;
-  text-decoration: underline;
+.suggestion-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 0.25rem;
 }
 
 .suggestion-toggle {
@@ -188,71 +169,107 @@ header {
   opacity: 0.7;
   transition: opacity 0.2s;
 }
-
-.suggestion-toggle:hover {
-  opacity: 1;
-}
+.suggestion-toggle:hover { opacity: 1; }
 
 .suggestion-text {
   font-size: 0.85rem;
-  margin-top: 1.5rem;
-  color: #444;
-  text-align: left;
   margin-top: 0.5rem;
+  color: #444;
   background: #f8f8f8;
   padding: 0.5rem;
   border-radius: 6px;
-  transition: all 0.2s ease-in-out;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
-
-/* === Section-Specific Tweaks === */
+/* === Color Section Specific === */
 #color-section .poop-card img {
   max-width: 160px;
   width: 60%;
 }
 
-
-/* === Media Queries === */
-@media (min-width: 768px) {
-  .info-section {
-    max-width: 1200px;
-  }
-
-  .poop-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-  }
+/* === Picker Icons === */
+.icon-picker {
+  margin: 1rem 0;
+  text-align: center;
 }
 
-@media (max-width: 768px) {
-  .poop-card {
-    padding: 0.75rem;
-  }
-
-  .poop-title {
-    font-size: 1rem;
-  }
-
-  .poop-card img {
-    width: 100%;
-  }
-
-  .poop-card p {
-    font-size: 0.85rem;
-  }
-
-  .poop-label {
-    font-size: 0.8rem;
-  }
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  justify-items: center;
 }
 
-/* quiz styling */
+.picker-icon {
+  width: 55px;
+  height: auto;
+  max-width: 100%;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.picker-icon:hover,
+.picker-icon.selected {
+  opacity: 1;
+  transform: scale(1.05);
+  outline: 2px solid #0066cc;
+  border-radius: 4px;
+}
+
+
+/* === Poop Log Form === */
+#poop-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 1rem auto;
+}
+#poop-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+#poop-form textarea,
+#poop-form select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+#poop-form button {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* === Poop History === */
+#poop-history {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+#poop-entries {
+  list-style: none;
+  padding: 0;
+}
+
+#poop-entries li {
+  margin-bottom: 1rem;
+  background: #fff;
+  padding: 0.75rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* === Quiz Section === */
 .quiz-question p {
   font-size: 1rem;
   margin-bottom: 0.5rem;
@@ -276,10 +293,7 @@ header {
   cursor: pointer;
   font-size: 1rem;
 }
-
-.quiz-option:hover {
-  background: #d0d0d0;
-}
+.quiz-option:hover { background: #d0d0d0; }
 
 .quiz-feedback {
   margin-top: 1rem;
@@ -304,13 +318,13 @@ header {
   max-width: 600px;
   margin-top: 1rem;
 }
-
 .quiz-inner {
   padding: 1rem;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 }
+
 .quiz-intro {
   text-align: center;
   font-size: 1rem;
@@ -318,6 +332,7 @@ header {
   color: #555;
   max-width: 600px;
 }
+
 .quiz-meta {
   display: flex;
   justify-content: space-between;
@@ -335,12 +350,9 @@ header {
   cursor: pointer;
   border-radius: 4px;
 }
+.quit-button:hover { background: #eee; }
 
-.quit-button:hover {
-  background: #eee;
-}
-
-/* facts styling */
+/* === Facts Section === */
 #facts-container {
   margin: 1rem auto;
   padding: 1rem;
@@ -367,85 +379,106 @@ header {
   cursor: pointer;
   transition: background 0.2s;
 }
+#new-fact:hover { background: #f1c40f; }
 
-#new-fact:hover {
-  background: #f1c40f;
+/* === Footer === */
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  background: #f0f0f0;
+  margin-top: 3rem;
 }
-
-/* log section styling  */
-#poop-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 500px;
-  margin: 1rem auto;
+.site-footer p {
+  margin: 0.5rem 0;
 }
-
-#poop-form label {
-  display: flex;
-  flex-direction: column;
-  font-weight: bold;
-}
-
-#poop-form textarea,
-#poop-form select {
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-#poop-form button {
-  align-self: flex-start;
-  padding: 0.5rem 1rem;
-  background: #e0e0e0;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#poop-history {
+.footer-note {
+  font-style: italic;
   max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 6px;
+  margin: 0.5rem auto 0;
+  color: #777;
 }
 
-#poop-entries {
-  list-style: none;
-  padding: 0;
-}
-
-#poop-entries li {
-  margin-bottom: 1rem;
-  background: #fff;
-  padding: 0.75rem;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-.icon-picker { margin: 1rem 0; text-align: center; }
-.picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
-.picker-icon {
-  width: 60px; cursor: pointer; opacity: 0.7;
-  transition: opacity 0.2s, transform 0.2s;
-}
-.picker-icon:hover,
-.picker-icon.selected {
-  opacity: 1; transform: scale(1.05);
-  outline: 2px solid #0066cc;
-  border-radius: 4px;
-}
-
-/* share buttons */
-
+/* === Share Buttons === */
 .share-buttons {
-  text-align: center; margin: 1rem 0;
+  text-align: center;
+  margin: 1rem 0;
 }
 .share-btn {
-  margin: 0 0.5rem; padding: 0.4rem 0.8rem;
-  background: #e0e0e0; border: none; border-radius: 4px;
-  text-decoration: none; color: #333;
+  margin: 0 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #e0e0e0;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
 }
 .share-btn:hover { background: #d0d0d0; }
 
+/* === Mobile-Specific Fixes === */
+@media (max-width: 768px) {
+  .poop-card {
+    padding: 0.75rem;
+  }
 
+  .poop-title {
+    font-size: 1rem;
+  }
+
+  .poop-card img {
+    width: 100%;
+  }
+
+  .poop-card p {
+    font-size: 0.85rem;
+  }
+
+  .poop-label {
+    font-size: 0.8rem;
+  }
+}
+
+/* poop heatmap */
+#poop-heatmap {
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  justify-items: center;
+}
+
+.heatmap-day {
+  width: 24px;
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  position: relative;
+  cursor: pointer;
+}
+
+.heatmap-day[data-score="3"] { background: #c6f6d5; } /* green */
+.heatmap-day[data-score="2"] { background: #fefcbf; } /* yellow */
+.heatmap-day[data-score="1"] { background: #fed7d7; } /* red */
+
+.heatmap-day:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -1.5rem;
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 1;
+}

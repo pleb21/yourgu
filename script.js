@@ -1,3 +1,4 @@
+// === Suggestion Cards ===
 fetch('suggestions.json')
   .then(response => response.json())
   .then(data => {
@@ -22,24 +23,25 @@ fetch('suggestions.json')
         el.classList.add('active-suggestion');
       }
     });
+
     document.querySelectorAll('.suggestion-toggle').forEach(button => {
-        button.addEventListener('click', () => {
-          const textEl = button.nextElementSibling;
-          textEl.classList.toggle('hidden');
-        });
+      button.addEventListener('click', () => {
+        const textEl = button.nextElementSibling;
+        textEl.classList.toggle('hidden');
       });
+    });
   })
   .catch(error => {
     console.error('Error loading suggestions:', error);
   });
 
-  // quiz section
-  function loadQuiz() {
-    let questionsPlayed = 0;
+// === Quiz Section ===
+function loadQuiz() {
+  let questionsPlayed = 0;
   fetch('quiz.json')
     .then(response => response.json())
     .then(questions => {
-      questions = questions.sort(() => Math.random() - 0.5)
+      questions = questions.sort(() => Math.random() - 0.5);
       const container = document.querySelector('#quiz-container .quiz-inner');
       let currentQuestion = 0;
       let score = 0;
@@ -65,49 +67,47 @@ fetch('suggestions.json')
           </div>
         `;
 
-  document.querySelectorAll('.quiz-option').forEach(button => {
-    button.addEventListener('click', () => {
-      const feedback = document.querySelector('.quiz-feedback');
-      if (button.textContent === q.answer) {
-        feedback.textContent = '✅ Correct!';
-        score++;
-      } else {
-        feedback.textContent = `❌ Nope. Correct answer: ${q.answer}`;
+        document.querySelectorAll('.quiz-option').forEach(button => {
+          button.addEventListener('click', () => {
+            const feedback = document.querySelector('.quiz-feedback');
+            if (button.textContent === q.answer) {
+              feedback.textContent = '✅ Correct!';
+              score++;
+            } else {
+              feedback.textContent = `❌ Nope. Correct answer: ${q.answer}`;
+            }
+
+            document.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+
+            setTimeout(() => {
+              currentQuestion++;
+              if (currentQuestion < questions.length) {
+                showQuestion(currentQuestion);
+              } else {
+                showResult();
+              }
+            }, 1000);
+          });
+        });
+
+        document.getElementById('quit-quiz').addEventListener('click', showResult);
       }
 
-      document.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+      function showResult() {
+        container.innerHTML = `
+          <div class="quiz-result">
+            <p>🎉 You got ${score} correct out of ${questionsPlayed} questions played!</p>
+            <button id="restart-quiz">Retry Quiz</button>
+          </div>
+        `;
 
-      setTimeout(() => {
-        currentQuestion++;
-        if (currentQuestion < questions.length) {
+        document.getElementById('restart-quiz').addEventListener('click', () => {
+          currentQuestion = 0;
+          score = 0;
+          questionsPlayed = 0;
           showQuestion(currentQuestion);
-        } else {
-          showResult();
-        }
-      }, 1000);
-    });
-  });
-
-  document.getElementById('quit-quiz').addEventListener('click', showResult);
-}
-
-function showResult() {
-  container.innerHTML = `
-    <div class="quiz-result">
-      <p>🎉 You got ${score} correct out of ${questionsPlayed} questions played!</p>
-      <button id="restart-quiz">Retry Quiz</button>
-    </div>
-  `;
-
-    document.getElementById('restart-quiz').addEventListener('click', () => {
-    currentQuestion = 0;
-    score = 0;
-    questionsPlayed = 0;
-    showQuestion(currentQuestion);
-  });
-
-}
-
+        });
+      }
 
       showQuestion(currentQuestion);
     })
@@ -117,9 +117,7 @@ function showResult() {
     });
 }
 
-// Trigger when quiz section comes into view or is linked
-document.addEventListener("DOMContentLoaded", loadQuiz);
-
+// === Facts ===
 function loadFacts() {
   fetch('facts.json')
     .then(r => r.json())
@@ -136,14 +134,12 @@ function loadFacts() {
     .catch(err => console.error('Facts load error:', err));
 }
 
-document.addEventListener('DOMContentLoaded', loadFacts);
-
-/* === Poop Log === */
+// === Poop History List ===
 function loadPoopHistory() {
   const list = document.getElementById('poop-entries');
   list.innerHTML = '';
-
   const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
+
   poopLog.forEach(entry => {
     const li = document.createElement('li');
     li.innerHTML = `
@@ -156,6 +152,60 @@ function loadPoopHistory() {
   });
 }
 
+// === Poop Heatmap ===
+function loadPoopHeatmap() {
+  console.log('loadPoopHeatmap called');
+  const log = JSON.parse(localStorage.getItem('poopLog') || '[]');
+  const grid = document.getElementById('heatmap-grid');
+  if (!grid) {
+    console.warn('Heatmap grid container not found!');
+    return;
+  }
+  grid.innerHTML = '';
+
+  const today = new Date();
+  const days = 30;
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const key = date.toLocaleDateString();
+
+    const entry = log.find(e => new Date(e.date).toLocaleDateString() === key);
+
+    let score = 0;
+    let label = 'No log';
+
+    if (entry) {
+      score = computePoopScore(entry.shape, entry.color);
+      label = `${entry.shape}, ${entry.color}`;
+    }
+
+    const day = document.createElement('div');
+    day.className = 'heatmap-day';
+    day.setAttribute('data-score', score);
+    day.setAttribute('data-tooltip', label);
+    day.textContent = date.getDate();
+    grid.appendChild(day);
+  }
+}
+
+function computePoopScore(shape, color) {
+  const shapeScore = {
+    'Type 3': 3, 'Type 4': 3,
+    'Type 5': 2, 'Type 2': 2,
+    'Type 1': 1, 'Type 6': 1, 'Type 7': 1
+  }[shape] || 2;
+
+  const colorScore = {
+    'Brown': 3, 'Green': 2, 'Orange': 2,
+    'Yellow': 1, 'Red': 1, 'Black': 1, 'Pale': 1
+  }[color] || 2;
+
+  return Math.min(shapeScore, colorScore);
+}
+
+// === Picker Icons ===
 function setupPicker(pickerId, inputId) {
   document.querySelectorAll(`#${pickerId} .picker-icon`).forEach(img => {
     img.addEventListener('click', () => {
@@ -166,9 +216,13 @@ function setupPicker(pickerId, inputId) {
   });
 }
 
+// === Main DOM Ready Block ===
 document.addEventListener('DOMContentLoaded', () => {
-  /* Quiz & Facts init... */
+  loadQuiz();
+  loadFacts();
   loadPoopHistory();
+  loadPoopHeatmap();
+
   setupPicker('shape-picker', 'poop-shape');
   setupPicker('color-picker', 'poop-color');
 
@@ -177,10 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const shape = document.getElementById('poop-shape').value;
     const color = document.getElementById('poop-color').value;
     const notes = document.getElementById('poop-notes').value;
+
     if (!shape || !color) {
       alert('Pick both shape and color.');
       return;
     }
+
     const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
     poopLog.unshift({
       shape, color, notes,
@@ -189,10 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('poopLog', JSON.stringify(poopLog));
     document.getElementById('poop-form').reset();
     document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
+
     loadPoopHistory();
+    loadPoopHeatmap();
   });
 
-  /* Share buttons */
+  // Share Buttons
   document.getElementById('share-whatsapp').href =
     `https://wa.me/?text=Check%20out%20my%20poop%20log%20at%20${encodeURIComponent(location.href)}`;
   document.getElementById('share-twitter').href =
