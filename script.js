@@ -294,6 +294,38 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPoopHistory();
     loadPoopHeatmap();
   });
+// export poop history
+    document.getElementById('export-csv').addEventListener('click', () => {
+    const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
+    if (!poopLog.length) {
+      alert('No poop data to export!');
+      return;
+    }
+
+    // Convert to CSV
+    const headers = ['Shape', 'Color', 'Notes', 'Date'];
+    const rows = poopLog.map(entry =>
+      [entry.shape, entry.color, entry.notes, entry.date].map(val =>
+        `"${(val || '').replace(/"/g, '""')}"`
+      ).join(',')
+    );
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'poop-log.csv';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
 
   // Share Buttons
   document.getElementById('share-whatsapp').href =
