@@ -329,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Share Buttons
   document.getElementById('share-whatsapp').href =
-    `https://wa.me/?text=Check%20out%20my%20poop%20log%20at%20${encodeURIComponent(location.href)}`;
+    `https://wa.me/?text=You%20should%20know%20about%20your%20poop%2C%20check%20out%20${encodeURIComponent(location.href)}`;
   document.getElementById('share-twitter').href =
-    `https://twitter.com/intent/tweet?text=Check%20out%20my%20poop%20log%20at%20my%20site!&url=${encodeURIComponent(location.href)}`;
+    `https://twitter.com/intent/tweet?text=You%20should%20know%20about%20your%20poop%2C%20check%20out%20&url=${encodeURIComponent(location.href)}`;
   document.getElementById('share-email').href =
-    `mailto:?subject=Look%20at%20my%20poop%20log&body=Check%20it%20out%20${encodeURIComponent(location.href)}`;
+    `mailto:?subject=You%20should%20know%20about%20your%20poop&body=Check%20it%20out%20${encodeURIComponent(location.href)}`;
 });
