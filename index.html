@@ -27,6 +27,11 @@
         <a href="#quiz-section">🧠 Quiz</a>
         <a href="#facts-section">🤓 Facts</a>
         <a href="#log-section">📓 Log</a>
+        <div class="user-auth">
+            <button id="google-signin" class="google-signin">Sign-in with Google</button>
+            <button id="signout-btn" style="display: none;">Sign out</button>
+            <div id="user-status"></div>
+        </div>
     </nav>
 
   <main>
@@ -192,7 +197,8 @@
             <a href="#facts-section" class="jump-link subtle-link">← Back to Poop Facts</a>
         </div>
         <p style="font-size: 0.85em;">Select the shape, colour of your poop & see how you pooped over time!</p>
-        <p style="font-size: 0.8em; color: rgb(1, 112, 25);">All logs are stored in YOUR browser. We don't know (don't want to know either) what you poop</p>
+        <p style="font-size: 0.8em; color: rgb(1, 112, 25);">All logs are stored in YOUR browser. We don't know (don't want to know either) what you poop.</p>
+        <p style="font-size: 0.8em;">If you, however, want to save your progress, you can <a class="google-signin" href="#">sign in with Google</a></p>
         
         <form id="poop-form">
             <div class="icon-picker" id="shape-picker">
@@ -258,6 +264,8 @@
             Talking about poop shouldn't be taboo. It's a natural part of health — the more we normalize it, the better we understand our bodies.
         </p>
     </footer>
-    <script src="script.js"></script>
+    
+    <!-- Your main JS file -->
+    <script src="script.js" type="module"></script>
 </body>
 </html>

@@ -1,3 +1,38 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  setDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBXzWmC6PZdB6HNzQxR-nStum0_rM5O1hU",
+  authDomain: "yourgu-poop-sync.firebaseapp.com",
+  projectId: "yourgu-poop-sync",
+  storageBucket: "yourgu-poop-sync.firebasestorage.app",
+  messagingSenderId: "249380086850",
+  appId: "1:249380086850:web:0c95a9959dd1e32fb839db"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
+
+window.yourguDB = db;
+window.yourguAuth = auth;
+
+
+
 // === Suggestion Cards ===
 fetch('suggestions.json')
   .then(response => response.json())
@@ -129,7 +164,6 @@ function loadQuiz() {
     });
 }
 
-
 // === Facts ===
 function loadFacts() {
   fetch('facts.json')
@@ -154,58 +188,97 @@ function loadFacts() {
 }
 
 // === Poop History List ===
-function loadPoopHistory() {
-  const list = document.getElementById('poop-entries');
-  list.innerHTML = '';
-  const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
-
-  poopLog.forEach(entry => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <strong>${entry.date}</strong><br>
-      <img src="assets/${entry.shape.toLowerCase().replace(' ', '')}.svg" alt="${entry.shape}" width="30">
-      <img src="assets/${entry.color.toLowerCase()}.svg" alt="${entry.color}" width="30">
-      Notes: ${entry.notes || '<em>None</em>'}
-    `;
-    list.appendChild(li);
-  });
-}
-
-// === Poop Heatmap ===
-function loadPoopHeatmap() {
-  console.log('loadPoopHeatmap called');
-  const log = JSON.parse(localStorage.getItem('poopLog') || '[]');
-  const grid = document.getElementById('heatmap-grid');
-  if (!grid) {
-    console.warn('Heatmap grid container not found!');
+async function loadPoopHistory() {
+  const user = auth.currentUser;
+  if (!user) {
+    console.warn("Not signed in, skipping load.");
     return;
   }
+
+  const list = document.getElementById('poop-entries');
+  list.innerHTML = '';
+
+  try {
+    const db = window.yourguDB;
+    const snapshot = await getDocs(collection(db, 'poopLog'));
+    const poopLog = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.userId === user.uid) {
+        poopLog.push(data);
+      }
+    });
+
+    poopLog.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    poopLog.forEach(entry => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${new Date(entry.date).toLocaleString()}</strong><br>
+        <img src="assets/${entry.shape.toLowerCase().replace(' ', '')}.svg" alt="${entry.shape}" width="30">
+        <img src="assets/${entry.color.toLowerCase()}.svg" alt="${entry.color}" width="30">
+        Notes: ${entry.notes || '<em>None</em>'}
+      `;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Failed to load poop history:', err);
+  }
+}
+
+
+// === Poop Heatmap ===
+async function loadPoopHeatmap() {
+  const user = auth.currentUser;
+  if (!user) {
+    console.warn("Not signed in, skipping load.");
+    return;
+  }
+
+  const grid = document.getElementById('heatmap-grid');
+  if (!grid) return;
+
   grid.innerHTML = '';
 
-  const today = new Date();
-  const days = 30;
+  try {
+    const db = window.yourguDB;
+    const snapshot = await getDocs(collection(db, 'poopLog'));
+    const poopLog = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.userId === user.uid) {
+        poopLog.push(data);
+      }
+    });
 
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    const key = date.toLocaleDateString();
 
-    const entry = log.find(e => new Date(e.date).toLocaleDateString() === key);
+    const today = new Date();
+    const days = 30;
 
-    let score = 0;
-    let label = 'No log';
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const key = date.toLocaleDateString();
 
-    if (entry) {
-      score = computePoopScore(entry.shape, entry.color);
-      label = `${entry.shape}, ${entry.color}`;
+      const entry = poopLog.find(e => new Date(e.date).toLocaleDateString() === key);
+
+      let score = 0;
+      let label = 'No log';
+
+      if (entry) {
+        score = computePoopScore(entry.shape, entry.color);
+        label = `${entry.shape}, ${entry.color}`;
+      }
+
+      const day = document.createElement('div');
+      day.className = 'heatmap-day';
+      day.setAttribute('data-score', score);
+      day.setAttribute('data-tooltip', label);
+      day.textContent = date.getDate();
+      grid.appendChild(day);
     }
-
-    const day = document.createElement('div');
-    day.className = 'heatmap-day';
-    day.setAttribute('data-score', score);
-    day.setAttribute('data-tooltip', label);
-    day.textContent = date.getDate();
-    grid.appendChild(day);
+  } catch (err) {
+    console.error('Heatmap load error:', err);
   }
 }
 
@@ -271,8 +344,65 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPicker('shape-picker', 'poop-shape');
   setupPicker('color-picker', 'poop-color');
 
-  document.getElementById('poop-form').addEventListener('submit', e => {
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+
+  // Sign in handler
+  function handleGoogleSignIn(e) {
     e.preventDefault();
+    signInWithPopup(auth, provider)
+      .then(result => {
+        const user = result.user;
+        console.log("Signed in as:", user.email);
+      })
+      .catch(error => {
+        console.error("Sign-in failed:", error);
+        alert("Could not sign in.");
+      });
+  }
+
+  // Sign out handler
+  document.getElementById('signout-btn').addEventListener('click', () => {
+    signOut(auth).then(() => {
+      console.log("Signed out.");
+    });
+  });
+
+  // Sign-in buttons
+  document.querySelectorAll('.google-signin').forEach(btn => {
+    btn.addEventListener('click', handleGoogleSignIn);
+  });
+
+  // Auth state change handler
+  onAuthStateChanged(auth, user => {
+  const userStatus = document.getElementById('user-status');
+  const signOutBtn = document.getElementById('signout-btn');
+
+  if (user) {
+    userStatus.textContent = `Logged in as: ${user.email}`;
+    signOutBtn.style.display = 'inline-block';
+
+    // NOW safe to load user-specific data
+    loadPoopHistory();
+    loadPoopHeatmap();
+  } else {
+    userStatus.textContent = 'Not signed in';
+    signOutBtn.style.display = 'none';
+
+    // Optional: clear the UI if you want
+    const list = document.getElementById('poop-entries');
+    if (list) list.innerHTML = '<li>Please sign in to view your poop history.</li>';
+
+    const grid = document.getElementById('heatmap-grid');
+    if (grid) grid.innerHTML = '';
+  }
+});
+
+
+
+  document.getElementById('poop-form').addEventListener('submit', async e => {
+    e.preventDefault();
+
     const shape = document.getElementById('poop-shape').value;
     const color = document.getElementById('poop-color').value;
     const notes = document.getElementById('poop-notes').value;
@@ -282,18 +412,29 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
-    poopLog.unshift({
-      shape, color, notes,
-      date: new Date().toLocaleString()
-    });
-    localStorage.setItem('poopLog', JSON.stringify(poopLog));
-    document.getElementById('poop-form').reset();
-    document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
+    const poopEntry = {
+      shape,
+      color,
+      notes,
+      date: new Date().toISOString(),
+      userId: auth.currentUser?.uid || null
+    };
 
-    loadPoopHistory();
-    loadPoopHeatmap();
+    try {
+      const db = window.yourguDB;
+      await addDoc(collection(db, 'poopLog'), poopEntry);
+      console.log('Poop logged to Firestore');
+      document.getElementById('poop-form').reset();
+      document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
+
+      loadPoopHistory(); // refresh with new data
+      loadPoopHeatmap();
+    } catch (err) {
+      console.error('Error logging poop:', err);
+      alert('Something went wrong. Poop not logged.');
+    }
   });
+
 // export poop history
     document.getElementById('export-csv').addEventListener('click', () => {
     const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
