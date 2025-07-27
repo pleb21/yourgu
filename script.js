@@ -375,28 +375,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auth state change handler
   onAuthStateChanged(auth, user => {
-  const userStatus = document.getElementById('user-status');
-  const signOutBtn = document.getElementById('signout-btn');
+    const signInButtons = document.querySelectorAll('.google-signin');
+    const userStatus = document.getElementById('user-status');
+    const signOutBtn = document.getElementById('signout-btn');
 
-  if (user) {
-    userStatus.textContent = `Logged in as: ${user.email}`;
-    signOutBtn.style.display = 'inline-block';
+    if (user) {
+      userStatus.textContent = `${user.email}`;
+      signOutBtn.style.display = 'inline-block';
 
-    // NOW safe to load user-specific data
-    loadPoopHistory();
-    loadPoopHeatmap();
-  } else {
-    userStatus.textContent = 'Not signed in';
-    signOutBtn.style.display = 'none';
+      signInButtons.forEach(btn => btn.style.display = 'none');
 
-    // Optional: clear the UI if you want
-    const list = document.getElementById('poop-entries');
-    if (list) list.innerHTML = '<li>Please sign in to view your poop history.</li>';
+      // NOW safe to load user-specific data
+      loadPoopHistory();
+      loadPoopHeatmap();
+    } else {
+      userStatus.textContent = 'Not signed in';
+      signOutBtn.style.display = 'none';
+      signInButtons.forEach(btn => btn.style.display = 'inline-block');
 
-    const grid = document.getElementById('heatmap-grid');
-    if (grid) grid.innerHTML = '';
-  }
-});
+      // Optional: clear the UI if you want
+      const list = document.getElementById('poop-entries');
+      if (list) list.innerHTML = '<li>Please sign in to view your poop history.</li>';
+
+      const grid = document.getElementById('heatmap-grid');
+      if (grid) grid.innerHTML = 'Sign in to view';
+    }
+  });
 
 
 

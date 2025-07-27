@@ -484,3 +484,28 @@ header {
   white-space: nowrap;
   z-index: 1;
 }
+
+/* user auth styles  */
+.user-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+#user-status {
+  font-size: 0.8em;
+  color: #444;
+}
+
+.subtle-button {
+  background: none;
+  border: none;
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+.subtle-button:hover {
+  text-decoration: none;
+}
