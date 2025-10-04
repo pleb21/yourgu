@@ -1,5 +1,5 @@
 // Application state
-let currentDate = new Date('2025-07-19');
+let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
 let currentYear = currentDate.getFullYear();
 let selectedDate = null;
