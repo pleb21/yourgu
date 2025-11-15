@@ -290,10 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('poopLog', JSON.stringify(poopLog));
     document.getElementById('poop-form').reset();
     document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
-
+  
     loadPoopHistory();
     loadPoopHeatmap();
   });
+
 // export poop history
     document.getElementById('export-csv').addEventListener('click', () => {
     const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
