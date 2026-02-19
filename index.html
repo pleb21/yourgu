@@ -262,6 +262,29 @@
             Talking about poop shouldn't be taboo. It's a natural part of health — the more we normalize it, the better we understand our bodies.
         </p>
     </footer>
+    <button onclick="rescueData()" style="background:red; color:white; padding:20px; width:100%;">
+  EMERGENCY DATA RESCUE
+</button>
+
+    <script>
+        function rescueData() {
+        const data = localStorage.getItem('poopLog');
+        if (!data) { alert("No data found!"); return; }
+        
+        // Create a giant text box at the top of the page
+        const textArea = document.createElement('textarea');
+        textArea.value = data;
+        textArea.style.width = "90%";
+        textArea.style.height = "200px";
+        textArea.style.position = "fixed";
+        textArea.style.top = "10px";
+        textArea.style.left = "5%";
+        textArea.style.zIndex = "9999";
+        document.body.appendChild(textArea);
+        
+        alert("Data is in the box above. Select All and Copy it!");
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
