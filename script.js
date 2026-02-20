@@ -295,37 +295,91 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPoopHeatmap();
   });
 
-// export poop history
-    document.getElementById('export-csv').addEventListener('click', () => {
-    const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
-    if (!poopLog.length) {
-      alert('No poop data to export!');
-      return;
+// === Data Export & Rescue Logic ===
+
+/**
+ * Emergency Fallback: Creates a visible text box with raw data 
+ * so the user can manually Copy/Paste if downloads fail.
+ */
+function rescueData() {
+    const data = localStorage.getItem('poopLog');
+    if (!data) {
+        alert("No data found in your browser storage!");
+        return;
     }
 
-    // Convert to CSV
+    const textArea = document.createElement('textarea');
+    textArea.value = data;
+    textArea.style.cssText = `
+        width: 90%; height: 250px; position: fixed; 
+        top: 20px; left: 5%; z-index: 10000; 
+        border: 5px solid red; background: white; color: black;
+        padding: 10px; font-family: monospace;
+    `;
+    document.body.appendChild(textArea);
+    alert("EMERGENCY RESCUE: Select all text in the red box and COPY it to your notes.");
+}
+
+/**
+ * Main Export Handler
+ * Targets iOS Share API first, then falls back to Desktop Download.
+ */
+async function handleExport(e) {
+    if (e) e.preventDefault();
+
+    const poopLog = JSON.parse(localStorage.getItem('poopLog') || '[]');
+    if (!poopLog.length) {
+        alert('No poop data to export!');
+        return;
+    }
+
+    // Prepare CSV Content
     const headers = ['Shape', 'Color', 'Notes', 'Date'];
     const rows = poopLog.map(entry =>
-      [entry.shape, entry.color, entry.notes, entry.date].map(val =>
-        `"${(val || '').replace(/"/g, '""')}"`
-      ).join(',')
+        [entry.shape, entry.color, entry.notes, entry.date].map(val =>
+            `"${(val || '').replace(/"/g, '""')}"`
+        ).join(',')
     );
-
     const csvContent = [headers.join(','), ...rows].join('\n');
 
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+    // --- TRY 1: Web Share API (Best for iPhone/iOS) ---
+    if (navigator.share && navigator.canShare) {
+        const file = new File([csvContent], 'poop-log.csv', { type: 'text/csv' });
+        if (navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'My Poop Log Export',
+                    text: 'Exported from Yourgu'
+                });
+                return; // Success!
+            } catch (err) {
+                if (err.name === 'AbortError') return; // User cancelled the menu
+                console.error("Share failed:", err);
+            }
+        }
+    }
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'poop-log.csv';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
+    // --- TRY 2: Desktop Download Fallback ---
+    try {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'poop-log.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        // --- TRY 3: Total Failure Safety Net ---
+        console.error("Download failed:", err);
+        rescueData();
+    }
+}
+
+// Add the listener inside your existing DOMContentLoaded block
+document.getElementById('export-csv').addEventListener('click', handleExport);
 
 
   // Share Buttons
