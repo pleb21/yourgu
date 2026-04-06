@@ -134,12 +134,55 @@
 
   /* Password reveal */
   .password-hidden { letter-spacing: 0.3em; }
+
+  /* 📺 D-Pad Focus Styles for TV */
+  .focus-ring { transition: all 0.2s ease; outline: none; }
+  .focus-ring:focus-visible, .focus-ring:focus { 
+    outline: none !important; 
+    box-shadow: 0 0 0 4px #efbbaa, 0 0 20px rgba(239, 187, 170, 0.4) !important; 
+    background-color: #282a2a !important; 
+    transform: scale(1.02) !important; 
+    z-index: 10 !important;
+  }
+  
+  /* 📱 Mobile bottom nav scroll */
+  .hide-scroll::-webkit-scrollbar { display: none; }
+  .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 </head>
-<body class="bg-rocktex">
+<body class="bg-rocktex pb-20 lg:pb-0">
 
-<!-- ═══════════════════════════════════════════ SIDEBAR ═══════════════════════════════════════════ -->
-<nav id="sidebar" class="fixed left-0 top-0 h-full z-50 flex flex-col w-64 border-r border-outline-variant/10 bg-surface-container-lowest/80 backdrop-blur-xl">
+<!-- ═══════════════════════════════════════════ SIDEBAR & MOBILE NAV ═══════════════════════════════════════════ -->
+<!-- 📱 Mobile Bottom Nav -->
+<nav id="mobile-nav" class="lg:hidden fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-3xl border-t border-outline-variant/10 flex justify-around items-center px-1 py-2 hide-scroll overflow-x-auto">
+  <button onclick="showScreen('welcome')" tabindex="0" class="focus-ring nav-item active flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="welcome">
+    <span class="material-symbols-outlined text-xl">home</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Home</span>
+  </button>
+  <button onclick="showScreen('building')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="building">
+    <span class="material-symbols-outlined text-xl">business</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Building</span>
+  </button>
+  <button onclick="showScreen('wifi')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="wifi">
+    <span class="material-symbols-outlined text-xl">wifi</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Wi-Fi</span>
+  </button>
+  <button onclick="showScreen('appliances')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="appliances">
+    <span class="material-symbols-outlined text-xl">menu_book</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Guides</span>
+  </button>
+  <button onclick="showScreen('rules')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="rules">
+    <span class="material-symbols-outlined text-xl">gavel</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Rules</span>
+  </button>
+  <button onclick="showScreen('local')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="local">
+    <span class="material-symbols-outlined text-xl">explore</span>
+    <span class="text-[9px] font-semibold tracking-tight uppercase">Local</span>
+  </button>
+</nav>
+
+<!-- Desktop Sidebar -->
+<nav id="sidebar" class="hidden lg:flex fixed left-0 top-0 h-full z-50 flex-col w-64 2xl:w-80 border-r border-outline-variant/10 bg-surface-container-lowest/80 backdrop-blur-xl">
   <!-- Logo -->
   <div class="px-8 pt-10 pb-6">
     <h1 class="text-xl font-black tracking-tighter text-primary">HAMELIA</h1>
@@ -151,27 +194,27 @@
 
   <!-- Nav items -->
   <div class="flex-1 flex flex-col gap-1 px-3">
-    <button onclick="showScreen('welcome')" class="nav-item active flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="welcome">
+    <button onclick="showScreen(\'welcome\')" tabindex="0" class="nav-item focus-ring active flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="welcome">
       <span class="material-symbols-outlined text-xl">home</span>
       <span class="text-sm font-semibold tracking-tight">Welcome</span>
     </button>
-    <button onclick="showScreen('building')" class="nav-item flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="building">
+    <button onclick="showScreen(\'building\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="building">
       <span class="material-symbols-outlined text-xl">business</span>
       <span class="text-sm font-semibold tracking-tight">The Building</span>
     </button>
-    <button onclick="showScreen('wifi')" class="nav-item flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="wifi">
+    <button onclick="showScreen(\'wifi\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="wifi">
       <span class="material-symbols-outlined text-xl">wifi</span>
       <span class="text-sm font-semibold tracking-tight">Wi-Fi & Access</span>
     </button>
-    <button onclick="showScreen('appliances')" class="nav-item flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="appliances">
+    <button onclick="showScreen(\'appliances\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="appliances">
       <span class="material-symbols-outlined text-xl">menu_book</span>
       <span class="text-sm font-semibold tracking-tight">Appliance Guides</span>
     </button>
-    <button onclick="showScreen('rules')" class="nav-item flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="rules">
+    <button onclick="showScreen(\'rules\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="rules">
       <span class="material-symbols-outlined text-xl">gavel</span>
       <span class="text-sm font-semibold tracking-tight">House Rules</span>
     </button>
-    <button onclick="showScreen('local')" class="nav-item flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="local">
+    <button onclick="showScreen(\'local\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="local">
       <span class="material-symbols-outlined text-xl">explore</span>
       <span class="text-sm font-semibold tracking-tight">Local Gems</span>
     </button>
@@ -188,15 +231,15 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════ TOP BAR ═══════════════════════════════════════════ -->
-<header class="fixed top-0 right-0 left-64 h-20 flex justify-between items-center px-12 z-40 bg-surface/60 backdrop-blur-md border-b border-outline-variant/10">
+<header class="fixed top-0 right-0 left-0 lg:left-64 h-16 lg:h-20 2xl:h-24 flex justify-between items-center px-6 lg:px-12 z-40 bg-surface/60 backdrop-blur-md border-b border-outline-variant/10">
   <div class="flex flex-col">
-    <h2 id="page-title" class="text-lg font-black tracking-tighter text-primary uppercase">Welcome</h2>
+    <h2 id="page-title" class="text-lg 2xl:text-2xl font-black tracking-tighter text-primary uppercase">Welcome</h2>
     <p id="page-sub" class="text-on-surface-variant/50 text-[10px] tracking-[0.25em] uppercase font-medium">Resident Portal</p>
   </div>
   <div class="flex items-center gap-8 text-on-surface-variant">
     <div class="flex items-center gap-2.5">
       <span class="material-symbols-outlined text-base text-primary/70">schedule</span>
-      <span id="clock" class="text-sm font-semibold tabular-nums"></span>
+      <span id="clock" class="text-sm 2xl:text-base font-semibold tabular-nums"></span>
     </div>
     <div class="flex items-center gap-2">
       <div class="copper-pulse w-1.5 h-1.5 rounded-full bg-secondary"></div>
@@ -206,14 +249,14 @@
 </header>
 
 <!-- ═══════════════════════════════════════════ MAIN WRAPPER ═══════════════════════════════════════════ -->
-<div class="ml-64 mt-20 h-[calc(100vh-5rem)]">
+<div class="ml-0 lg:ml-64 mt-16 lg:mt-20 h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] 2xl:h-[calc(100vh-6rem)] pb-20 lg:pb-0 overflow-y-auto lg:overflow-hidden">
 
   <!-- ══════════════ SCREEN: WELCOME ══════════════ -->
-  <div id="screen-welcome" class="screen active fade-up p-10 gap-6" style="flex-direction:column;">
-    <div class="grid grid-cols-12 grid-rows-2 gap-5 h-full">
+  <div id="screen-welcome" class="screen active fade-up p-4 lg:p-10 2xl:p-14 gap-6" style="flex-direction:column;">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-2 gap-4 lg:gap-5 h-auto lg:h-full pb-8 lg:pb-0">
 
       <!-- Hero card -->
-      <section class="col-span-7 row-span-2 bg-surface-container-low rounded-sm relative overflow-hidden flex flex-col justify-end p-12 ghost-border">
+      <section class="col-span-1 md:col-span-2 lg:col-span-7 lg:row-span-2 bg-surface-container-low rounded-sm relative overflow-hidden flex flex-col justify-end p-6 lg:p-12 2xl:p-16 ghost-border">
         <!-- Atmospheric overlay -->
         <div class="absolute inset-0 opacity-[0.06]" style="background-image: repeating-linear-gradient(0deg, rgba(239,187,170,0.5) 0px, rgba(239,187,170,0.5) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(239,187,170,0.5) 0px, rgba(239,187,170,0.5) 1px, transparent 1px, transparent 40px);"></div>
         <!-- Placeholder image area -->
@@ -226,13 +269,13 @@
         <div class="absolute inset-0 bg-gradient-to-r from-surface-container-low via-surface-container-low/90 to-transparent"></div>
         <div class="relative z-10">
           <p class="text-primary tracking-[0.35em] text-[10px] font-bold mb-3 uppercase">2nd Floor · HAMELIA Building</p>
-          <h1 class="text-6xl font-extrabold tracking-tighter leading-none mb-4">Welcome to<br/><span class="text-primary">HAMELIA</span></h1>
-          <p class="text-on-surface-variant text-lg max-w-md font-light leading-relaxed">Your home for this stay — a residence of industrial refinement in the heart of Haldwani.</p>
+          <h1 class="text-4xl lg:text-6xl 2xl:text-7xl font-extrabold tracking-tighter leading-none mb-4">Welcome to<br/><span class="text-primary">HAMELIA</span></h1>
+          <p class="text-on-surface-variant text-base lg:text-lg 2xl:text-2xl 2xl:max-w-xl max-w-md font-light leading-relaxed">Your home for this stay — a residence of industrial refinement in the heart of Haldwani.</p>
           <div class="flex gap-3 mt-6">
-            <button onclick="showScreen('wifi')" class="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-sm text-primary text-xs font-bold tracking-wider uppercase hover:bg-primary/20 transition-colors">
+            <button onclick="showScreen('wifi')" tabindex="0" class="focus-ring flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-sm text-primary text-xs font-bold tracking-wider uppercase hover:bg-primary/20 transition-colors">
               <span class="material-symbols-outlined text-sm">wifi</span> Wi-Fi Details
             </button>
-            <button onclick="showScreen('rules')" class="flex items-center gap-2 px-4 py-2 bg-surface-container-high border border-outline-variant/20 rounded-sm text-on-surface-variant text-xs font-bold tracking-wider uppercase hover:bg-surface-container-highest transition-colors">
+            <button onclick="showScreen('rules')" tabindex="0" class="focus-ring flex items-center gap-2 px-4 py-2 bg-surface-container-high border border-outline-variant/20 rounded-sm text-on-surface-variant text-xs font-bold tracking-wider uppercase hover:bg-surface-container-highest transition-colors">
               <span class="material-symbols-outlined text-sm">gavel</span> House Rules
             </button>
           </div>
@@ -240,7 +283,7 @@
       </section>
 
       <!-- Wi-Fi quick card -->
-      <section class="col-span-2 row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer bento-hover" onclick="showScreen('wifi')">
+      <section tabindex="0" class="col-span-1 lg:col-span-2 lg:row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('wifi')">
         <span class="material-symbols-outlined text-3xl text-primary">wifi</span>
         <div>
           <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Network</p>
@@ -250,7 +293,7 @@
       </section>
 
       <!-- Appliances quick card -->
-      <section class="col-span-3 row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer bento-hover" onclick="showScreen('appliances')">
+      <section tabindex="0" class="col-span-1 lg:col-span-3 lg:row-span-1 lg:min-h-[200px] bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('appliances')">
         <span class="material-symbols-outlined text-3xl text-secondary">menu_book</span>
         <div>
           <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Guides</p>
@@ -260,7 +303,7 @@
       </section>
 
       <!-- Building quick card -->
-      <section class="col-span-2 row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer bento-hover" onclick="showScreen('building')">
+      <section tabindex="0" class="col-span-1 lg:col-span-2 lg:row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('building')">
         <span class="material-symbols-outlined text-3xl text-tertiary">business</span>
         <div>
           <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Building</p>
@@ -270,7 +313,7 @@
       </section>
 
       <!-- Local gems quick card -->
-      <section class="col-span-3 row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer bento-hover" onclick="showScreen('local')">
+      <section tabindex="0" class="col-span-1 lg:col-span-3 lg:row-span-1 lg:min-h-[200px] bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('local')">
         <span class="material-symbols-outlined text-3xl text-primary/70">explore</span>
         <div>
           <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Nearby</p>
@@ -283,17 +326,17 @@
   </div>
 
   <!-- ══════════════ SCREEN: THE BUILDING ══════════════ -->
-  <div id="screen-building" class="screen scroll-panel p-10 flex-col gap-8">
+  <div id="screen-building" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
     <div class="fade-up max-w-5xl">
       <!-- Header -->
       <div class="mb-8">
         <span class="inline-block py-1 px-3 bg-tertiary/10 text-tertiary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-tertiary/20 mb-3">HAMELIA · Haldwani</span>
-        <h2 class="text-5xl font-extrabold tracking-tighter leading-none">The Building</h2>
+        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter leading-none">The Building</h2>
         <p class="text-on-surface-variant text-base mt-3 max-w-xl leading-relaxed font-light">A four-unit commercial building in central Haldwani. You're on the 2nd floor — the top. Two floors, four spaces, one story.</p>
       </div>
 
       <!-- Floor map grid -->
-      <div class="grid grid-cols-3 gap-5 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         <!-- Ground Floor Café -->
         <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
           <div class="flex items-center justify-between mb-4">
@@ -341,7 +384,7 @@
       </div>
 
       <!-- Building info strip -->
-      <div class="grid grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-surface-container rounded-sm p-5 ghost-border">
           <span class="material-symbols-outlined text-xl text-on-surface-variant/40 mb-2">elevator</span>
           <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wider mb-1">Access</p>
@@ -367,15 +410,15 @@
   </div>
 
   <!-- ══════════════ SCREEN: WI-FI & ACCESS ══════════════ -->
-  <div id="screen-wifi" class="screen p-10 gap-8 items-start">
+  <div id="screen-wifi" class="screen p-4 lg:p-10 2xl:p-14 gap-8 items-start">
     <div class="fade-up flex flex-col gap-6 w-full max-w-4xl">
       <!-- Header -->
       <div>
         <span class="inline-block py-1 px-3 bg-primary/10 text-primary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-primary/20 mb-3">Connectivity</span>
-        <h2 class="text-5xl font-extrabold tracking-tighter">Wi-Fi & Access</h2>
+        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Wi-Fi & Access</h2>
       </div>
 
-      <div class="grid grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <!-- WiFi card -->
         <div class="bg-surface-container-low rounded-sm p-8 ghost-border">
           <div class="flex items-start justify-between mb-6">
@@ -387,7 +430,7 @@
           <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-2">Password</p>
           <div class="flex items-center gap-3">
             <p id="wifi-password" class="text-2xl font-black tracking-tight text-primary password-hidden">••••••••••</p>
-            <button onclick="togglePassword()" class="text-on-surface-variant/40 hover:text-primary transition-colors" title="Reveal password">
+            <button tabindex="0" onclick="togglePassword()" class="focus-ring rounded p-1 text-on-surface-variant/40 hover:text-primary transition-colors" title="Reveal password">
               <span id="eye-icon" class="material-symbols-outlined text-xl">visibility</span>
             </button>
           </div>
@@ -417,7 +460,7 @@
         <!-- Emergency contacts -->
         <div class="col-span-2 bg-surface-container rounded-sm p-6 ghost-border">
           <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Emergency & Useful Numbers</p>
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="text-center">
               <span class="material-symbols-outlined text-2xl text-primary/60">person</span>
               <p class="text-xs font-bold mt-1">Your Host</p>
@@ -445,32 +488,32 @@
   </div>
 
   <!-- ══════════════ SCREEN: APPLIANCE GUIDES ══════════════ -->
-  <div id="screen-appliances" class="screen p-10 gap-6 items-start">
+  <div id="screen-appliances" class="screen p-4 lg:p-10 2xl:p-14 gap-6 items-start">
     <div class="fade-up w-full">
       <div class="mb-6">
         <span class="inline-block py-1 px-3 bg-secondary/10 text-secondary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-secondary/20 mb-3">Device Manuals</span>
-        <h2 class="text-5xl font-extrabold tracking-tighter">Appliance Guides</h2>
+        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Appliance Guides</h2>
       </div>
 
       <!-- Tabs -->
-      <div class="flex gap-2 mb-6" id="appliance-tabs">
-        <button onclick="showAppliance('ac')" class="appliance-tab active flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase transition-all" data-tab="ac">
+      <div class="flex gap-2 mb-6 overflow-x-auto hide-scroll pb-2" id="appliance-tabs">
+        <button onclick="showAppliance('ac')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 active flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase transition-all" data-tab="ac">
           <span class="material-symbols-outlined text-sm">ac_unit</span> Air Conditioner
         </button>
-        <button onclick="showAppliance('geyser')" class="appliance-tab flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="geyser">
+        <button onclick="showAppliance('geyser')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="geyser">
           <span class="material-symbols-outlined text-sm">water_heater</span> Geyser
         </button>
-        <button onclick="showAppliance('tv')" class="appliance-tab flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="tv">
+        <button onclick="showAppliance('tv')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="tv">
           <span class="material-symbols-outlined text-sm">tv</span> TV / Google TV
         </button>
-        <button onclick="showAppliance('misc')" class="appliance-tab flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="misc">
+        <button onclick="showAppliance('misc')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="misc">
           <span class="material-symbols-outlined text-sm">devices_other</span> Other Devices
         </button>
       </div>
 
       <!-- AC Guide -->
       <div id="appliance-ac" class="appliance-content">
-        <div class="grid grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div class="col-span-1 bg-surface-container-low rounded-sm p-6 ghost-border">
             <span class="material-symbols-outlined text-3xl text-primary mb-4">ac_unit</span>
             <h3 class="text-lg font-bold mb-3">AC Remote Guide</h3>
@@ -498,10 +541,10 @@
               </div>
             </div>
           </div>
-          <div class="col-span-2 grid grid-rows-2 gap-5">
+          <div class="col-span-1 lg:col-span-2 grid grid-rows-2 gap-5">
             <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
               <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-3">Temperature & Timer</p>
-              <div class="grid grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p class="text-sm font-semibold mb-2">Setting temperature</p>
                   <p class="text-on-surface-variant text-xs leading-relaxed font-light">Use ▲ ▼ buttons. Recommended: <span class="text-primary font-semibold">24–26°C</span> for comfort. Press <span class="text-secondary font-semibold">TEMP+/−</span> to adjust.</p>
@@ -514,7 +557,7 @@
             </div>
             <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
               <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-3">Troubleshooting</p>
-              <div class="grid grid-cols-3 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rule-item pl-3 py-1">
                   <p class="text-xs font-semibold">Not cooling?</p>
                   <p class="text-on-surface-variant text-xs font-light mt-0.5">Check mode is COOL, not fan. Temp below room temp.</p>
@@ -535,7 +578,7 @@
 
       <!-- Geyser Guide -->
       <div id="appliance-geyser" class="appliance-content hidden">
-        <div class="grid grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div class="bg-surface-container-low rounded-sm p-8 ghost-border">
             <span class="material-symbols-outlined text-3xl text-secondary mb-4">water_heater</span>
             <h3 class="text-lg font-bold mb-4">Water Heater (Geyser)</h3>
@@ -577,7 +620,7 @@
 
       <!-- TV Guide -->
       <div id="appliance-tv" class="appliance-content hidden">
-        <div class="grid grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div class="bg-surface-container-low rounded-sm p-7 ghost-border">
             <span class="material-symbols-outlined text-3xl text-primary mb-4">tv</span>
             <h3 class="text-lg font-bold mb-4">Google TV Remote</h3>
@@ -604,9 +647,9 @@
               </div>
             </div>
           </div>
-          <div class="col-span-2 bg-surface-container-low rounded-sm p-7 ghost-border">
+          <div class="col-span-1 lg:col-span-2 bg-surface-container-low rounded-sm p-7 ghost-border">
             <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Streaming & Channels</p>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="rule-item pl-4 py-2">
                 <p class="text-sm font-bold">Netflix / Prime / YouTube</p>
                 <p class="text-on-surface-variant text-xs font-light mt-1">Pre-installed. Sign in with your own account or ask host if a guest account is available.</p>
@@ -630,7 +673,7 @@
 
       <!-- Misc devices -->
       <div id="appliance-misc" class="appliance-content hidden">
-        <div class="grid grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
             <span class="material-symbols-outlined text-2xl text-tertiary mb-3">power</span>
             <h3 class="text-base font-bold mb-3">Power & Charging</h3>
@@ -652,15 +695,15 @@
   </div>
 
   <!-- ══════════════ SCREEN: HOUSE RULES ══════════════ -->
-  <div id="screen-rules" class="screen scroll-panel p-10 flex-col gap-8">
+  <div id="screen-rules" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
     <div class="fade-up max-w-5xl">
       <div class="mb-8">
         <span class="inline-block py-1 px-3 bg-outline-variant/20 text-on-surface-variant text-[9px] font-bold tracking-widest uppercase rounded-sm border border-outline-variant/20 mb-3">Policy & Safety</span>
-        <h2 class="text-5xl font-extrabold tracking-tighter">House Rules</h2>
+        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">House Rules</h2>
         <p class="text-on-surface-variant text-base mt-3 font-light">Simple rules to keep the space great for everyone. Most of this is common sense — we just like to be clear.</p>
       </div>
 
-      <div class="grid grid-cols-2 gap-5 mb-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <!-- Check-in / out -->
         <div class="bg-surface-container-low rounded-sm p-7 ghost-border">
           <span class="material-symbols-outlined text-2xl text-secondary mb-4">schedule</span>
@@ -710,7 +753,7 @@
       </div>
 
       <!-- Rules grid -->
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-surface-container rounded-sm p-5 ghost-border">
           <div class="flex items-center gap-2 mb-3">
             <span class="material-symbols-outlined text-base text-on-surface-variant/40">smoking_rooms</span>
@@ -764,11 +807,11 @@
   </div>
 
   <!-- ══════════════ SCREEN: LOCAL GEMS ══════════════ -->
-  <div id="screen-local" class="screen scroll-panel p-10 flex-col gap-8">
+  <div id="screen-local" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
     <div class="fade-up max-w-5xl">
       <div class="mb-8">
         <span class="inline-block py-1 px-3 bg-secondary/10 text-secondary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-secondary/20 mb-3">Around You</span>
-        <h2 class="text-5xl font-extrabold tracking-tighter">Local Gems</h2>
+        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Local Gems</h2>
         <p class="text-on-surface-variant text-base mt-3 font-light">Haldwani is the gateway to Kumaon. Here's what's worth your time — in the city and beyond.</p>
       </div>
 
@@ -785,7 +828,7 @@
       <!-- Local food -->
       <div class="mb-6">
         <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Food & Eats · Haldwani</p>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border cursor-pointer">
             <div class="flex items-center justify-between mb-3">
               <span class="material-symbols-outlined text-xl text-primary/60">restaurant</span>
@@ -816,7 +859,7 @@
       <!-- Day trips -->
       <div>
         <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Day Trips from Haldwani</p>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
             <div class="flex items-center justify-between mb-3">
               <span class="material-symbols-outlined text-xl text-primary/70">terrain</span>
@@ -872,6 +915,18 @@
 <div class="watermark text-white">SS304</div>
 
 <script>
+  // ─── D-PAD Focus & Enter key ─────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const el = document.activeElement;
+      if (el && typeof el.onclick === 'function') {
+        el.click();
+      } else if (el && el.hasAttribute('onclick')) {
+        el.click();
+      }
+    }
+  });
+
   // ─── Clock ───────────────────────────────────────────────
   function updateClock() {
     const now = new Date();
