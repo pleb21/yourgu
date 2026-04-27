@@ -1,1008 +1,937 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>HAMELIA — Industrial Elegance</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        colors: {
-          "outline-variant": "#434748",
-          "primary-container": "#46251a",
-          "on-primary": "#49281d",
-          "surface-dim": "#121414",
-          "surface": "#121414",
-          "surface-bright": "#383939",
-          "on-tertiary": "#2e3133",
-          "inverse-surface": "#e2e2e2",
-          "primary-fixed": "#ffdbd0",
-          "outline": "#8e9191",
-          "background": "#121414",
-          "surface-container": "#1e2020",
-          "tertiary-container": "#2b2e31",
-          "surface-container-low": "#1a1c1c",
-          "on-surface": "#e2e2e2",
-          "on-surface-variant": "#c4c7c7",
-          "surface-variant": "#333535",
-          "surface-container-high": "#282a2a",
-          "secondary": "#e9c349",
-          "error": "#ffb4ab",
-          "surface-container-lowest": "#0c0f0f",
-          "tertiary": "#c5c6ca",
-          "on-secondary": "#3c2f00",
-          "surface-container-highest": "#333535",
-          "primary": "#efbbaa",
-          "primary-fixed-dim": "#efbbaa"
-        },
-        fontFamily: {
-          "headline": ["Plus Jakarta Sans"],
-          "body": ["Plus Jakarta Sans"],
-          "label": ["Plus Jakarta Sans"]
-        },
-        borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
-      }
-    }
-  }
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HAMELIA</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-  * { font-family: 'Plus Jakarta Sans', sans-serif; }
-  body { background-color: #121414; color: #e2e2e2; overflow: hidden; height: 100vh; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
-  .material-symbols-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+:root {
+  --primary: #efbbaa;
+  --primary-dim: #c4927e;
+  --primary-deep: #46251a;
+  --secondary: #e9c349;
+  --tertiary: #c5c6ca;
+  --surface: #121414;
+  --surface-1: #1a1c1c;
+  --surface-2: #1e2020;
+  --surface-3: #282a2a;
+  --on-surface: #e2e2e2;
+  --on-surface-dim: #8e9191;
+  --strip-w: 72px;
+  --transition: 600ms cubic-bezier(0.77, 0, 0.175, 1);
+}
 
-  /* Rocktex texture background */
-  .bg-rocktex {
-    background-image:
-      linear-gradient(135deg, rgba(18,20,20,0.96) 0%, rgba(26,28,28,0.94) 100%),
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 8px),
-      repeating-linear-gradient(-45deg, rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 12px);
-  }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
 
-  /* Screen transitions */
-  .screen { display: none; height: calc(100vh - 0px); overflow: hidden; }
-  .screen.active { display: flex; }
+/* ── LAYOUT ROOT ── */
+#app {
+  width: 100vw; height: 100vh;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
 
-  /* Nav active state */
-  .nav-item { transition: all 0.25s ease; }
-  .nav-item.active {
-    color: #efbbaa !important;
-    border-left: 3px solid #efbbaa;
-    background: linear-gradient(90deg, rgba(70,37,26,0.25) 0%, transparent 100%);
-    opacity: 1 !important;
-  }
-  .nav-item.active .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+/* ── ORBITAL PANEL ── */
+#orbital {
+  position: relative;
+  width: 100vw;
+  min-width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(0);
+  transition: transform var(--transition), width var(--transition), min-width var(--transition);
+  z-index: 10;
+  overflow: hidden;
+}
 
-  /* Copper pulse dot */
-  @keyframes copperPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-  .copper-pulse { animation: copperPulse 2.5s ease-in-out infinite; }
+/* background grid */
+#orbital::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(239,187,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239,187,170,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
 
-  /* Subtle fade-in for screen content */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-up { animation: fadeUp 0.4s ease forwards; }
+/* subtle vignette */
+#orbital::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 42% 50%, transparent 40%, rgba(12,14,14,0.7) 100%);
+  pointer-events: none;
+}
 
-  /* Clock */
-  #clock { font-variant-numeric: tabular-nums; }
+/* collapsed state */
+#app.content-open #orbital {
+  width: var(--strip-w);
+  min-width: var(--strip-w);
+  transform: translateX(0);
+  cursor: pointer;
+}
 
-  /* Appliance tab active */
-  .appliance-tab.active {
-    background: rgba(239, 187, 170, 0.12);
-    color: #efbbaa;
-    border-color: rgba(239, 187, 170, 0.3);
-  }
+/* ── STRIP (collapsed sidebar) ── */
+#strip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+  z-index: 20;
+  background: var(--surface-1);
+  border-right: 1px solid rgba(239,187,170,0.08);
+}
 
-  /* Scrollable content panels */
-  .scroll-panel { overflow-y: auto; scrollbar-width: none; }
-  .scroll-panel::-webkit-scrollbar { display: none; }
+#app.content-open #strip {
+  opacity: 1;
+  pointer-events: all;
+}
 
-  /* Ghost border */
-  .ghost-border { border: 1px solid rgba(67,71,72,0.15); }
+.strip-logo {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  opacity: 0.7;
+}
 
-  /* Copper gradient on primary CTA */
-  .copper-gradient { background: linear-gradient(135deg, #efbbaa 0%, #46251a 100%); }
+.strip-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
 
-  /* Watermark text */
-  .watermark {
-    position: fixed; bottom: 3rem; right: 3rem;
-    pointer-events: none; opacity: 0.04; user-select: none;
-    font-size: 6rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1;
-  }
+.strip-node {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,187,170,0.15);
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
 
-  /* Bento grid hover */
-  .bento-hover { transition: background-color 0.35s ease, transform 0.25s ease; }
-  .bento-hover:hover { background-color: #282a2a; }
+.strip-node:hover, .strip-node.active {
+  border-color: var(--primary);
+  background: rgba(239,187,170,0.08);
+}
 
-  /* Rule item */
-  .rule-item { border-left: 2px solid rgba(239,187,170,0.15); transition: border-color 0.2s; }
-  .rule-item:hover { border-left-color: rgba(239,187,170,0.5); }
+.strip-node svg { width: 14px; height: 14px; stroke: var(--primary); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; }
+.strip-node.active svg { opacity: 1; }
 
-  /* Gem card hover */
-  .gem-card { transition: all 0.3s ease; }
-  .gem-card:hover { background-color: #282a2a; transform: translateY(-2px); }
+.strip-home {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,187,170,0.3);
+  background: rgba(239,187,170,0.06);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.strip-home:hover { background: rgba(239,187,170,0.14); }
+.strip-home svg { width: 12px; height: 12px; stroke: var(--primary); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Password reveal */
-  .password-hidden { letter-spacing: 0.3em; }
+/* ── ORBITAL CANVAS (SVG) ── */
+#orbital-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 5;
+  transition: opacity var(--transition);
+}
+#app.content-open #orbital-canvas { opacity: 0; pointer-events: none; }
 
-  /* 📺 D-Pad Focus Styles for TV */
-  .focus-ring { transition: all 0.2s ease; outline: none; }
-  .focus-ring:focus-visible, .focus-ring:focus { 
-    outline: none !important; 
-    box-shadow: 0 0 0 4px #efbbaa, 0 0 20px rgba(239, 187, 170, 0.4) !important; 
-    background-color: #282a2a !important; 
-    transform: scale(1.02) !important; 
-    z-index: 10 !important;
-  }
-  
-  /* 📱 Mobile bottom nav scroll */
-  .hide-scroll::-webkit-scrollbar { display: none; }
-  .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+/* ── NODE CIRCLES (HTML, positioned over SVG) ── */
+#nodes-layer {
+  position: absolute; inset: 0;
+  z-index: 15;
+  transition: opacity var(--transition);
+}
+#app.content-open #nodes-layer { opacity: 0; pointer-events: none; }
+
+.orbit-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  border: 1px solid rgba(239,187,170,0.25);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+.orbit-node::before {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,187,170,0.08);
+  transition: all 0.35s;
+}
+
+.orbit-node:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  border-color: var(--primary);
+  background: rgba(239,187,170,0.06);
+  box-shadow: 0 0 32px rgba(239,187,170,0.08);
+}
+
+.orbit-node:hover::before { inset: -10px; border-color: rgba(239,187,170,0.15); }
+
+.orbit-node svg { width: 22px; height: 22px; stroke: var(--primary); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.orbit-node span { font-size: 7px; font-weight: 700; letter-spacing: 0.2em; color: var(--primary); opacity: 0.5; text-transform: uppercase; }
+
+/* centre circle */
+#centre {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 156px; height: 156px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  border: 1.5px solid rgba(239,187,170,0.4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  z-index: 9;
+  pointer-events: none;
+}
+
+#centre::before {
+  content: '';
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,187,170,0.1);
+}
+
+#centre::after {
+  content: '';
+  position: absolute; inset: -16px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,187,170,0.05);
+}
+
+#clock {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--primary);
+  opacity: 0.5;
+  letter-spacing: 0.15em;
+}
+
+.centre-label {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  color: var(--primary);
+  opacity: 0.3;
+  text-transform: uppercase;
+}
+
+/* ── CONTENT PANEL ── */
+#content-panel {
+  position: relative;
+  flex: 1;
+  height: 100vh;
+  transform: translateX(100vw);
+  transition: transform var(--transition);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+#app.content-open #content-panel {
+  transform: translateX(0);
+}
+
+.content-screen {
+  display: none;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 52px 64px 52px 52px;
+  animation: fadeContent 0.4s ease forwards;
+}
+.content-screen::-webkit-scrollbar { display: none; }
+.content-screen.active { display: block; }
+
+@keyframes fadeContent {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* content header */
+.content-header {
+  margin-bottom: 40px;
+}
+
+.content-tag {
+  display: inline-block;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--primary); opacity: 0.6;
+  border: 1px solid rgba(239,187,170,0.2);
+  padding: 4px 10px; border-radius: 2px;
+  margin-bottom: 14px;
+}
+
+.content-title {
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--on-surface);
+}
+
+.content-title span { color: var(--primary); }
+
+.content-sub {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--on-surface-dim);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* cards */
+.card-grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 3px;
+  padding: 24px;
+  transition: background 0.2s;
+}
+.card:hover { background: var(--surface-2); }
+
+.card-icon { font-size: 24px; margin-bottom: 14px; line-height: 1; }
+
+.card-label {
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--on-surface-dim); opacity: 0.5;
+  margin-bottom: 6px;
+}
+
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.card-body { font-size: 13px; font-weight: 300; color: var(--on-surface-dim); line-height: 1.6; }
+
+/* rule item */
+.rule-row {
+  display: flex; gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: flex-start;
+}
+.rule-row:last-child { border-bottom: none; }
+.rule-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); opacity: 0.4; margin-top: 6px; flex-shrink: 0; }
+.rule-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.rule-body { font-size: 13px; font-weight: 300; color: var(--on-surface-dim); line-height: 1.6; }
+
+/* wifi big display */
+.wifi-network {
+  background: var(--surface-1);
+  border: 1px solid rgba(239,187,170,0.15);
+  border-radius: 3px;
+  padding: 36px 40px;
+  margin-bottom: 16px;
+}
+.wifi-label { font-size: 9px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--on-surface-dim); opacity: 0.4; margin-bottom: 10px; }
+.wifi-value { font-family: 'Space Mono', monospace; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; color: var(--primary); }
+.wifi-pass { cursor: pointer; }
+
+/* appliance tabs */
+.app-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.app-tab {
+  padding: 8px 18px; border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--on-surface-dim); background: transparent;
+  cursor: pointer; transition: all 0.2s;
+}
+.app-tab:hover { border-color: rgba(239,187,170,0.25); color: var(--primary); }
+.app-tab.active { border-color: var(--primary); color: var(--primary); background: rgba(239,187,170,0.06); }
+
+.app-content { display: none; }
+.app-content.active { display: block; }
+
+/* step list */
+.step-list { display: flex; flex-direction: column; gap: 0; }
+.step-item { display: flex; gap: 20px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+.step-item:last-child { border-bottom: none; }
+.step-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--primary); opacity: 0.4; flex-shrink: 0; width: 24px; padding-top: 2px; }
+.step-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.step-body { font-size: 13px; font-weight: 300; color: var(--on-surface-dim); line-height: 1.6; }
+
+/* checklist */
+.check-item { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
+.check-item:last-child { border-bottom: none; }
+.check-box { width: 18px; height: 18px; border-radius: 2px; border: 1px solid rgba(239,187,170,0.25); background: transparent; flex-shrink: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.check-item.checked .check-box { background: var(--primary); border-color: var(--primary); }
+.check-item.checked .check-box::after { content: '✓'; font-size: 11px; color: var(--primary-deep); font-weight: 900; }
+.check-item.checked .check-label { color: var(--on-surface-dim); text-decoration: line-through; opacity: 0.4; }
+.check-label { font-size: 14px; font-weight: 500; transition: all 0.2s; }
+
+/* gem card */
+.gem-card {
+  background: var(--surface-1);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 3px;
+  padding: 20px;
+  transition: all 0.25s;
+}
+.gem-card:hover { background: var(--surface-2); transform: translateY(-2px); }
+.gem-dist { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; color: var(--primary); opacity: 0.5; margin-bottom: 6px; }
+.gem-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.gem-desc { font-size: 12px; font-weight: 300; color: var(--on-surface-dim); line-height: 1.6; }
+
+/* floor badge */
+.floor-badge {
+  display: inline-block; font-size: 8px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px; margin-bottom: 10px;
+}
+
+/* highlight card */
+.highlight-card {
+  background: rgba(239,187,170,0.04);
+  border: 1px solid rgba(239,187,170,0.15);
+  border-radius: 3px;
+  padding: 24px 28px;
+  display: flex; gap: 20px; align-items: center;
+  margin-bottom: 20px;
+}
+
+/* divider */
+.divider { height: 1px; background: rgba(255,255,255,0.04); margin: 28px 0; }
+
+/* reveal toggle */
+.reveal-btn { background: none; border: none; cursor: pointer; color: var(--on-surface-dim); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Space Mono', monospace; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; margin-left: 16px; transition: all 0.2s; }
+.reveal-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* time display */
+.time-big { font-family: 'Space Mono', monospace; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; color: var(--primary); }
+
+/* ── ORBIT RING ANIMATION ── */
+@keyframes slowSpin { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes slowSpinR { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(-360deg); } }
+@keyframes pulse { 0%,100%{opacity:0.08} 50%{opacity:0.18} }
+
+.ring {
+  position: absolute; border-radius: 50%; border: 1px solid rgba(239,187,170,0.08);
+  left: 50%; top: 50%;
+  pointer-events: none;
+}
+.ring-1 { width: 400px; height: 400px; transform: translate(-50%,-50%); animation: pulse 4s ease-in-out infinite; }
+.ring-2 { width: 520px; height: 520px; transform: translate(-50%,-50%); animation: pulse 6s ease-in-out infinite 1s; }
+.ring-3 { width: 650px; height: 650px; transform: translate(-50%,-50%); animation: pulse 8s ease-in-out infinite 2s; }
+
+/* ── DASHED CONNECTORS ── */
+.connector {
+  position: absolute; pointer-events: none;
+  stroke: rgba(239,187,170,0.12); fill: none; stroke-dasharray: 4 6; stroke-width: 1;
+  left: 0; top: 0; width: 100%; height: 100%;
+  z-index: 6;
+}
+
+/* ── CORNER CLOCK (content mode) ── */
+#content-clock {
+  position: absolute; top: 24px; right: 32px; z-index: 50;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; color: var(--primary); opacity: 0.3;
+  letter-spacing: 0.15em;
+  pointer-events: none;
+}
+
 </style>
 </head>
-<body class="bg-rocktex pb-20 lg:pb-0">
+<body>
 
-<!-- ═══════════════════════════════════════════ SIDEBAR & MOBILE NAV ═══════════════════════════════════════════ -->
-<!-- 📱 Mobile Bottom Nav -->
-<nav id="mobile-nav" class="lg:hidden fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-3xl border-t border-outline-variant/10 flex justify-around items-center px-1 py-2 hide-scroll overflow-x-auto">
-  <button onclick="showScreen('welcome')" tabindex="0" class="focus-ring nav-item active flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="welcome">
-    <span class="material-symbols-outlined text-xl">home</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Home</span>
-  </button>
-  <button onclick="showScreen('building')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="building">
-    <span class="material-symbols-outlined text-xl">business</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Building</span>
-  </button>
-  <button onclick="showScreen('wifi')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="wifi">
-    <span class="material-symbols-outlined text-xl">wifi</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Wi-Fi</span>
-  </button>
-  <button onclick="showScreen('appliances')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="appliances">
-    <span class="material-symbols-outlined text-xl">menu_book</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Guides</span>
-  </button>
-  <button onclick="showScreen('rules')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="rules">
-    <span class="material-symbols-outlined text-xl">gavel</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Rules</span>
-  </button>
-  <button onclick="showScreen('local')" tabindex="0" class="focus-ring nav-item flex flex-col items-center gap-1 text-on-surface-variant p-2 opacity-70 rounded-lg min-w-[64px]" data-screen="local">
-    <span class="material-symbols-outlined text-xl">explore</span>
-    <span class="text-[9px] font-semibold tracking-tight uppercase">Local</span>
-  </button>
-</nav>
+<div id="app">
 
-<!-- Desktop Sidebar -->
-<nav id="sidebar" class="hidden lg:flex fixed left-0 top-0 h-full z-50 flex-col w-64 2xl:w-80 border-r border-outline-variant/10 bg-surface-container-lowest/80 backdrop-blur-xl">
-  <!-- Logo -->
-  <div class="px-8 pt-10 pb-6">
-    <h1 class="text-xl font-black tracking-tighter text-primary">HAMELIA</h1>
-    <p class="text-[9px] tracking-[0.3em] text-on-surface-variant/40 uppercase mt-0.5">Industrial Elegance · Haldwani</p>
-  </div>
+  <!-- ══════════ ORBITAL PANEL ══════════ -->
+  <div id="orbital" onclick="handleOrbitalClick(event)">
 
-  <!-- Divider -->
-  <div class="mx-8 h-px bg-outline-variant/10 mb-4"></div>
+    <!-- Rings -->
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
 
-  <!-- Nav items -->
-  <div class="flex-1 flex flex-col gap-1 px-3">
-    <button onclick="showScreen(\'welcome\')" tabindex="0" class="nav-item focus-ring active flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="welcome">
-      <span class="material-symbols-outlined text-xl">home</span>
-      <span class="text-sm font-semibold tracking-tight">Welcome</span>
-    </button>
-    <button onclick="showScreen(\'building\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="building">
-      <span class="material-symbols-outlined text-xl">business</span>
-      <span class="text-sm font-semibold tracking-tight">The Building</span>
-    </button>
-    <button onclick="showScreen(\'wifi\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="wifi">
-      <span class="material-symbols-outlined text-xl">wifi</span>
-      <span class="text-sm font-semibold tracking-tight">Wi-Fi & Access</span>
-    </button>
-    <button onclick="showScreen(\'appliances\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="appliances">
-      <span class="material-symbols-outlined text-xl">menu_book</span>
-      <span class="text-sm font-semibold tracking-tight">Appliance Guides</span>
-    </button>
-    <button onclick="showScreen(\'rules\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="rules">
-      <span class="material-symbols-outlined text-xl">gavel</span>
-      <span class="text-sm font-semibold tracking-tight">House Rules</span>
-    </button>
-    <button onclick="showScreen(\'local\')" tabindex="0" class="nav-item focus-ring flex items-center gap-4 text-on-surface-variant py-3.5 px-5 opacity-70 w-full text-left rounded-sm" data-screen="local">
-      <span class="material-symbols-outlined text-xl">explore</span>
-      <span class="text-sm font-semibold tracking-tight">Local Gems</span>
-    </button>
-  </div>
+    <!-- Connector SVG -->
+    <svg class="connector" id="connector-svg"></svg>
 
-  <!-- Bottom: Contact card -->
-  <div class="px-5 pb-8 mt-auto">
-    <div class="bg-surface-container-high p-4 rounded-sm ghost-border">
-      <p class="text-[9px] font-bold tracking-[0.2em] text-on-surface-variant/50 uppercase mb-1">Need Help?</p>
-      <p class="text-primary text-sm font-bold">+91 XXXXX XXXXX</p>
-      <p class="text-on-surface-variant/50 text-[10px] mt-0.5">Host · Available 9AM–10PM</p>
+    <!-- Centre -->
+    <div id="centre" style="left:50%;top:50%;">
+      <svg width="36" height="40" viewBox="0 0 36 40" fill="none">
+        <rect x="0" y="0" width="5" height="40" fill="#efbbaa" rx="1"/>
+        <rect x="31" y="0" width="5" height="40" fill="#efbbaa" rx="1"/>
+        <rect x="0" y="17" width="36" height="6" fill="#efbbaa" rx="1"/>
+      </svg>
+      <div id="clock" class="mono">00:00</div>
+      <div class="centre-label">Haldwani</div>
+    </div>
+
+    <!-- Orbit nodes (positioned via JS) -->
+    <div id="nodes-layer">
+      <div class="orbit-node" id="node-wifi" onclick="event.stopPropagation(); openSection('wifi')"">
+        <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+        <span>Wi-Fi</span>
+      </div>
+      <div class="orbit-node" id="node-appliances" onclick="event.stopPropagation(); openSection('appliances')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>Guides</span>
+      </div>
+      <div class="orbit-node" id="node-local" onclick="event.stopPropagation(); openSection('local')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/></svg>
+        <span>Local</span>
+      </div>
+      <div class="orbit-node" id="node-rules" onclick="event.stopPropagation(); openSection('rules')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Rules</span>
+      </div>
+      <div class="orbit-node" id="node-building" onclick="event.stopPropagation(); openSection('building')">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="1"/><path d="M9 21V9h6v12M2 9h20"/></svg>
+        <span>Building</span>
+      </div>
+    </div>
+
+    <!-- Strip (collapsed nav) -->
+    <div id="strip">
+      <div class="strip-logo">HAMELIA</div>
+      <div class="strip-nodes">
+        <div class="strip-node" id="strip-wifi" title="Wi-Fi" onclick="openSection('wifi')">
+          <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+        </div>
+        <div class="strip-node" id="strip-appliances" title="Guides" onclick="openSection('appliances')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="strip-node" id="strip-local" title="Local Gems" onclick="openSection('local')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/></svg>
+        </div>
+        <div class="strip-node" id="strip-rules" title="Rules" onclick="openSection('rules')">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        </div>
+        <div class="strip-node" id="strip-building" title="Building" onclick="openSection('building')">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="1"/><path d="M9 21V9h6v12M2 9h20"/></svg>
+        </div>
+      </div>
+      <div class="strip-home" title="Home" onclick="goHome()">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
     </div>
   </div>
-</nav>
 
-<!-- ═══════════════════════════════════════════ TOP BAR ═══════════════════════════════════════════ -->
-<header class="fixed top-0 right-0 left-0 lg:left-64 h-16 lg:h-20 2xl:h-24 flex justify-between items-center px-6 lg:px-12 z-40 bg-surface/60 backdrop-blur-md border-b border-outline-variant/10">
-  <div class="flex flex-col">
-    <h2 id="page-title" class="text-lg 2xl:text-2xl font-black tracking-tighter text-primary uppercase">Welcome</h2>
-    <p id="page-sub" class="text-on-surface-variant/50 text-[10px] tracking-[0.25em] uppercase font-medium">Resident Portal</p>
-  </div>
-  <div class="flex items-center gap-8 text-on-surface-variant">
-    <div class="flex items-center gap-2.5">
-      <span class="material-symbols-outlined text-base text-primary/70">schedule</span>
-      <span id="clock" class="text-sm 2xl:text-base font-semibold tabular-nums"></span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="copper-pulse w-1.5 h-1.5 rounded-full bg-secondary"></div>
-      <span class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40">Live</span>
-    </div>
-  </div>
-</header>
+  <!-- ══════════ CONTENT PANEL ══════════ -->
+  <div id="content-panel">
+    <div id="content-clock"></div>
 
-<!-- ═══════════════════════════════════════════ MAIN WRAPPER ═══════════════════════════════════════════ -->
-<div class="ml-0 lg:ml-64 mt-16 lg:mt-20 h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] 2xl:h-[calc(100vh-6rem)] pb-20 lg:pb-0 overflow-y-auto lg:overflow-hidden">
-
-  <!-- ══════════════ SCREEN: WELCOME ══════════════ -->
-  <div id="screen-welcome" class="screen active fade-up p-4 lg:p-10 2xl:p-14 gap-6" style="flex-direction:column;">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-2 gap-4 lg:gap-5 h-auto lg:h-full pb-8 lg:pb-0">
-
-      <!-- Hero card -->
-      <section class="col-span-1 md:col-span-2 lg:col-span-7 lg:row-span-2 bg-surface-container-low rounded-sm relative overflow-hidden flex flex-col justify-end p-6 lg:p-12 2xl:p-16 ghost-border">
-        <!-- Atmospheric overlay -->
-        <div class="absolute inset-0 opacity-[0.06]" style="background-image: repeating-linear-gradient(0deg, rgba(239,187,170,0.5) 0px, rgba(239,187,170,0.5) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(239,187,170,0.5) 0px, rgba(239,187,170,0.5) 1px, transparent 1px, transparent 40px);"></div>
-        <!-- Placeholder image area -->
-        <div class="absolute top-0 right-0 w-2/5 h-full bg-surface-container-high opacity-40 flex items-center justify-center">
-          <div class="text-center">
-            <span class="material-symbols-outlined text-5xl text-on-surface-variant/20">add_photo_alternate</span>
-            <p class="text-[9px] text-on-surface-variant/20 tracking-widest uppercase mt-2">Your photo here</p>
+    <!-- WI-FI -->
+    <div class="content-screen" id="screen-wifi">
+      <div class="content-header">
+        <div class="content-tag">Connectivity</div>
+        <h1 class="content-title">Wi-Fi &amp; <span>Access</span></h1>
+        <p class="content-sub">Everything you need to get connected and get in.</p>
+      </div>
+      <div class="wifi-network">
+        <div class="wifi-label">Network name (SSID)</div>
+        <div class="wifi-value">HAMELIA_5G</div>
+        <div class="divider" style="margin:20px 0;"></div>
+        <div class="wifi-label">Password</div>
+        <div style="display:flex;align-items:center;">
+          <div class="wifi-value wifi-pass" id="wifi-pass">••••••••••</div>
+          <button class="reveal-btn" onclick="toggleWifi()">Reveal</button>
+        </div>
+      </div>
+      <div class="card-grid g2">
+        <div class="card">
+          <div class="card-label">Door & Key</div>
+          <div class="card-title">Main entrance</div>
+          <div class="card-body">Add your key / access instructions here. E.g. "Ring bell on arrival — code is 4512."</div>
+          <div class="divider"></div>
+          <div class="card-title">Room door</div>
+          <div class="card-body">Key handed at check-in. Please return before checkout.</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Emergency Contacts</div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num">Host</div>
+              <div><div class="step-title" style="color:var(--primary)">+91 XXXXX XXXXX</div><div class="step-body">Available 9AM–10PM</div></div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">Hosp</div>
+              <div><div class="step-title">Add number</div><div class="step-body">Nearest hospital</div></div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">Fire</div>
+              <div><div class="step-title">101</div><div class="step-body">Fire brigade</div></div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">Pol</div>
+              <div><div class="step-title">100</div><div class="step-body">Police</div></div>
+            </div>
           </div>
         </div>
-        <div class="absolute inset-0 bg-gradient-to-r from-surface-container-low via-surface-container-low/90 to-transparent"></div>
-        <div class="relative z-10">
-          <p class="text-primary tracking-[0.35em] text-[10px] font-bold mb-3 uppercase">2nd Floor · HAMELIA Building</p>
-          <h1 class="text-4xl lg:text-6xl 2xl:text-7xl font-extrabold tracking-tighter leading-none mb-4">Welcome to<br/><span class="text-primary">HAMELIA</span></h1>
-          <p class="text-on-surface-variant text-base lg:text-lg 2xl:text-2xl 2xl:max-w-xl max-w-md font-light leading-relaxed">Your home for this stay — a residence of industrial refinement in the heart of Haldwani.</p>
-          <div class="flex gap-3 mt-6">
-            <button onclick="showScreen('wifi')" tabindex="0" class="focus-ring flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-sm text-primary text-xs font-bold tracking-wider uppercase hover:bg-primary/20 transition-colors">
-              <span class="material-symbols-outlined text-sm">wifi</span> Wi-Fi Details
-            </button>
-            <button onclick="showScreen('rules')" tabindex="0" class="focus-ring flex items-center gap-2 px-4 py-2 bg-surface-container-high border border-outline-variant/20 rounded-sm text-on-surface-variant text-xs font-bold tracking-wider uppercase hover:bg-surface-container-highest transition-colors">
-              <span class="material-symbols-outlined text-sm">gavel</span> House Rules
-            </button>
+      </div>
+    </div>
+
+    <!-- APPLIANCES -->
+    <div class="content-screen" id="screen-appliances">
+      <div class="content-header">
+        <div class="content-tag">Device Manuals</div>
+        <h1 class="content-title">Appliance <span>Guides</span></h1>
+      </div>
+      <div class="app-tabs">
+        <button class="app-tab active" onclick="switchTab(this,'tab-ac')">Air Conditioner</button>
+        <button class="app-tab" onclick="switchTab(this,'tab-geyser')">Geyser</button>
+        <button class="app-tab" onclick="switchTab(this,'tab-tv')">Google TV</button>
+        <button class="app-tab" onclick="switchTab(this,'tab-misc')">Other</button>
+      </div>
+      <div class="app-content active" id="tab-ac">
+        <div class="card-grid g2" style="margin-bottom:16px;">
+          <div class="card">
+            <div class="card-label">Modes</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">❄</div><div><div class="step-title">Cool</div><div class="step-body">Default mode. Use in summer.</div></div></div>
+              <div class="step-item"><div class="step-num">♨</div><div><div class="step-title">Heat</div><div class="step-body">Winter use only.</div></div></div>
+              <div class="step-item"><div class="step-num">≋</div><div><div class="step-title">Fan</div><div class="step-body">No cooling, just airflow.</div></div></div>
+              <div class="step-item"><div class="step-num">💧</div><div><div class="step-title">Dry</div><div class="step-body">Dehumidify — monsoon season.</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Temperature & Timer</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">01</div><div><div class="step-title">Set temp</div><div class="step-body">Use ▲▼ buttons. Recommended: 24–26°C for comfort.</div></div></div>
+              <div class="step-item"><div class="step-num">02</div><div><div class="step-title">Sleep timer</div><div class="step-body">Press TIMER, set hours with ▲▼, then SET. AC switches off automatically.</div></div></div>
+              <div class="step-item"><div class="step-num">03</div><div><div class="step-title">Not cooling?</div><div class="step-body">Check mode is COOL. Temp must be set below current room temp.</div></div></div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+      <div class="app-content" id="tab-geyser">
+        <div class="card-grid g2">
+          <div class="card">
+            <div class="card-label">How to use</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">01</div><div><div class="step-title">Switch on</div><div class="step-body">Red switch on the bathroom wall, near the mirror. Turn on 10–15 mins before your shower.</div></div></div>
+              <div class="step-item"><div class="step-num">02</div><div><div class="step-title">Wait</div><div class="step-body">Indicator light goes off when water is hot. Usually 10 minutes.</div></div></div>
+              <div class="step-item"><div class="step-num">03</div><div><div class="step-title" style="color:var(--primary)">Switch OFF after use</div><div class="step-body">Always. Do not leave on overnight.</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Good to know</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">Cap</div><div><div class="step-title">~15 litres</div><div class="step-body">Enough for 1 long shower or 2 short ones.</div></div></div>
+              <div class="step-item"><div class="step-num">Tip</div><div><div class="step-title">Peak hours</div><div class="step-body">Water pressure may be lower 7–9 AM. Heat before peak if possible.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-content" id="tab-tv">
+        <div class="card-grid g2">
+          <div class="card">
+            <div class="card-label">Remote Guide</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">⏻</div><div><div class="step-title">Power</div><div class="step-body">Top button on remote.</div></div></div>
+              <div class="step-item"><div class="step-num">🎙</div><div><div class="step-title">Google Assistant</div><div class="step-body">Mic button — speak your search or command.</div></div></div>
+              <div class="step-item"><div class="step-num">⌂</div><div><div class="step-title">Home</div><div class="step-body">House icon — returns to launcher.</div></div></div>
+              <div class="step-item"><div class="step-num">←</div><div><div class="step-title">Back</div><div class="step-body">Arrow icon — back one level.</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Streaming & Inputs</div>
+            <div class="step-list">
+              <div class="step-item"><div class="step-num">OTT</div><div><div class="step-title">Netflix / Prime / YouTube</div><div class="step-body">Pre-installed. Sign in with your own account.</div></div></div>
+              <div class="step-item"><div class="step-num">HDM</div><div><div class="step-title">HDMI / Laptop</div><div class="step-body">Cable in drawer. Press INPUT → HDMI1.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-content" id="tab-misc">
+        <div class="card-grid g3">
+          <div class="card"><div class="card-label">Power</div><div class="card-title">Sockets</div><div class="card-body">Universal sockets at bedside and desk. Indian 3-pin, 220V 50Hz. Extension board in cupboard.</div></div>
+          <div class="card"><div class="card-label">Lights</div><div class="card-title">Switches</div><div class="card-body">Main board near entrance. Bedside lamp has a dimmer — rotate to adjust.</div></div>
+          <div class="card"><div class="card-label">Kitchen</div><div class="card-title">Kettle / Appliances</div><div class="card-body">Add your kitchen appliance info here. e.g. kettle location, microwave settings.</div></div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Wi-Fi quick card -->
-      <section tabindex="0" class="col-span-1 lg:col-span-2 lg:row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('wifi')">
-        <span class="material-symbols-outlined text-3xl text-primary">wifi</span>
+    <!-- LOCAL GEMS -->
+    <div class="content-screen" id="screen-local">
+      <div class="content-header">
+        <div class="content-tag">Around You</div>
+        <h1 class="content-title">Local <span>Gems</span></h1>
+        <p class="content-sub">Haldwani is the gateway to Kumaon. Here's what's worth your time.</p>
+      </div>
+      <div class="highlight-card">
+        <div style="font-size:32px;">☕</div>
         <div>
-          <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Network</p>
-          <p class="text-sm font-black tracking-tight">HAMELIA_5G</p>
-          <p class="text-[10px] text-on-surface-variant/50 mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-xs">lock</span>Tap for password</p>
-        </div>
-      </section>
-
-      <!-- Appliances quick card -->
-      <section tabindex="0" class="col-span-1 lg:col-span-3 lg:row-span-1 lg:min-h-[200px] bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('appliances')">
-        <span class="material-symbols-outlined text-3xl text-secondary">menu_book</span>
-        <div>
-          <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Guides</p>
-          <p class="text-sm font-black tracking-tight">Appliance Manuals</p>
-          <p class="text-[10px] text-on-surface-variant/50 mt-1">AC · Geyser · TV · More</p>
-        </div>
-      </section>
-
-      <!-- Building quick card -->
-      <section tabindex="0" class="col-span-1 lg:col-span-2 lg:row-span-1 bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('building')">
-        <span class="material-symbols-outlined text-3xl text-tertiary">business</span>
-        <div>
-          <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Building</p>
-          <p class="text-sm font-black tracking-tight">The Building</p>
-          <p class="text-[10px] text-on-surface-variant/50 mt-1">Café · Floors · Info</p>
-        </div>
-      </section>
-
-      <!-- Local gems quick card -->
-      <section tabindex="0" class="col-span-1 lg:col-span-3 lg:row-span-1 lg:min-h-[200px] bg-surface-container rounded-sm p-6 flex flex-col justify-between ghost-border cursor-pointer focus-ring bento-hover" onclick="showScreen('local')">
-        <span class="material-symbols-outlined text-3xl text-primary/70">explore</span>
-        <div>
-          <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/50 mb-1">Nearby</p>
-          <p class="text-sm font-black tracking-tight">Local Gems</p>
-          <p class="text-[10px] text-on-surface-variant/50 mt-1">Food · Markets · Trips</p>
-        </div>
-      </section>
-
-    </div>
-  </div>
-
-  <!-- ══════════════ SCREEN: THE BUILDING ══════════════ -->
-  <div id="screen-building" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
-    <div class="fade-up max-w-5xl">
-      <!-- Header -->
-      <div class="mb-8">
-        <span class="inline-block py-1 px-3 bg-tertiary/10 text-tertiary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-tertiary/20 mb-3">HAMELIA · Haldwani</span>
-        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter leading-none">The Building</h2>
-        <p class="text-on-surface-variant text-base mt-3 max-w-xl leading-relaxed font-light">A four-unit commercial building in central Haldwani. You're on the 2nd floor — the top. Two floors, four spaces, one story.</p>
-      </div>
-
-      <!-- Floor map grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        <!-- Ground Floor Café -->
-        <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-[9px] font-bold tracking-[0.3em] text-secondary uppercase">Ground Floor</span>
-            <span class="w-2 h-2 rounded-full bg-secondary copper-pulse"></span>
-          </div>
-          <span class="material-symbols-outlined text-3xl text-secondary mb-3">local_cafe</span>
-          <h3 class="text-xl font-bold tracking-tight mb-1">The Café</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed font-light">Right downstairs. Coffee, snacks, and a relaxed spot. Great for your first morning.</p>
-          <div class="mt-4 pt-4 border-t border-outline-variant/10">
-            <p class="text-[10px] text-on-surface-variant/40 tracking-widest uppercase">Hours · Placeholder</p>
-          </div>
-        </div>
-
-        <!-- 1st Floor Dentist -->
-        <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-[9px] font-bold tracking-[0.3em] text-tertiary uppercase">1st Floor</span>
-            <span class="w-2 h-2 rounded-full bg-tertiary/40"></span>
-          </div>
-          <span class="material-symbols-outlined text-3xl text-tertiary/60 mb-3">medical_services</span>
-          <h3 class="text-xl font-bold tracking-tight mb-1">Dental Clinic</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed font-light">A dental practice on the first floor. Useful to know if you need it during your stay.</p>
-          <div class="mt-4 pt-4 border-t border-outline-variant/10">
-            <p class="text-[10px] text-on-surface-variant/40 tracking-widest uppercase">By Appointment</p>
-          </div>
-        </div>
-
-        <!-- 2nd Floor: You are here -->
-        <div class="bg-primary/8 rounded-sm p-6 border border-primary/25 relative overflow-hidden">
-          <div class="absolute top-3 right-3">
-            <span class="text-[8px] font-bold tracking-[0.3em] text-primary uppercase bg-primary/10 px-2 py-1 rounded-sm">YOU ARE HERE</span>
-          </div>
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-[9px] font-bold tracking-[0.3em] text-primary uppercase">2nd Floor</span>
-            <span class="w-2 h-2 rounded-full bg-primary copper-pulse"></span>
-          </div>
-          <span class="material-symbols-outlined text-3xl text-primary mb-3">apartment</span>
-          <h3 class="text-xl font-bold tracking-tight mb-1">HAMELIA Residence</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed font-light">Your space. Top floor of the building — quieter, better light, and the best view.</p>
-          <div class="mt-4 pt-4 border-t border-primary/10">
-            <p class="text-[10px] text-primary/50 tracking-widest uppercase">Home · Check-out 11 AM</p>
-          </div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.25em;color:var(--secondary);text-transform:uppercase;margin-bottom:6px;">Right downstairs · Ground Floor</div>
+          <div style="font-size:18px;font-weight:800;">The Café at HAMELIA</div>
+          <div style="font-size:13px;color:var(--on-surface-dim);margin-top:4px;font-weight:300;">You don't even have to leave the building for your first coffee.</div>
         </div>
       </div>
-
-      <!-- Building info strip -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <span class="material-symbols-outlined text-xl text-on-surface-variant/40 mb-2">elevator</span>
-          <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wider mb-1">Access</p>
-          <p class="text-sm font-semibold">Staircase only</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <span class="material-symbols-outlined text-xl text-on-surface-variant/40 mb-2">local_parking</span>
-          <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wider mb-1">Parking</p>
-          <p class="text-sm font-semibold">Add info here</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <span class="material-symbols-outlined text-xl text-on-surface-variant/40 mb-2">security</span>
-          <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wider mb-1">Security</p>
-          <p class="text-sm font-semibold">Add info here</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <span class="material-symbols-outlined text-xl text-on-surface-variant/40 mb-2">photo_library</span>
-          <p class="text-xs font-bold text-on-surface-variant/50 uppercase tracking-wider mb-1">Gallery</p>
-          <p class="text-sm font-semibold text-primary/50">Photos coming</p>
-        </div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--on-surface-dim);opacity:0.4;margin-bottom:16px;">Day Trips from Haldwani</div>
+      <div class="card-grid g3" style="margin-bottom:16px;">
+        <div class="gem-card"><div class="gem-dist">~35 km</div><div class="gem-name">Nainital</div><div class="gem-desc">The lake city. Naini Lake, Mall Road, boat rides. Go early to beat crowds.</div></div>
+        <div class="gem-card"><div class="gem-dist">~75 km</div><div class="gem-name">Jim Corbett</div><div class="gem-desc">India's oldest national park. Tiger safaris, birding. Book safaris ahead.</div></div>
+        <div class="gem-card"><div class="gem-dist">~50 km</div><div class="gem-name">Mukteshwar</div><div class="gem-desc">Himalayan views, apple orchards, Shiva temple. Peaceful and less touristy.</div></div>
+        <div class="gem-card"><div class="gem-dist">~90 km</div><div class="gem-name">Kausani</div><div class="gem-desc">Panoramic views of Trisul &amp; Nanda Devi. Gandhi called it the Switzerland of India.</div></div>
+        <div class="gem-card"><div class="gem-dist">~25 km</div><div class="gem-name">Bhimtal</div><div class="gem-desc">Quieter lake town. Island aquarium on the lake. Very relaxed vibe.</div></div>
+        <div class="gem-card" style="border-style:dashed;opacity:0.4;display:flex;align-items:center;justify-content:center;"><div style="text-align:center;font-size:12px;color:var(--on-surface-dim);">+ Add your gem</div></div>
+      </div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--on-surface-dim);opacity:0.4;margin-bottom:16px;">Food nearby</div>
+      <div class="card-grid g3">
+        <div class="gem-card"><div class="gem-name">Add restaurant</div><div class="gem-desc">Your favourite local spot. Add name, what's good, and how far.</div></div>
+        <div class="gem-card"><div class="gem-name">Dhaba / Thali</div><div class="gem-desc">Best local food is usually at a dhaba. Add your top pick here.</div></div>
+        <div class="gem-card"><div class="gem-name">Chai & Sweets</div><div class="gem-desc">Nearest chai stall or mithai shop. Add it here.</div></div>
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════ SCREEN: WI-FI & ACCESS ══════════════ -->
-  <div id="screen-wifi" class="screen p-4 lg:p-10 2xl:p-14 gap-8 items-start">
-    <div class="fade-up flex flex-col gap-6 w-full max-w-4xl">
-      <!-- Header -->
-      <div>
-        <span class="inline-block py-1 px-3 bg-primary/10 text-primary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-primary/20 mb-3">Connectivity</span>
-        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Wi-Fi & Access</h2>
+    <!-- RULES -->
+    <div class="content-screen" id="screen-rules">
+      <div class="content-header">
+        <div class="content-tag">Policy & Safety</div>
+        <h1 class="content-title">House <span>Rules</span></h1>
+        <p class="content-sub">Simple rules to keep the space great for everyone.</p>
       </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- WiFi card -->
-        <div class="bg-surface-container-low rounded-sm p-8 ghost-border">
-          <div class="flex items-start justify-between mb-6">
-            <span class="material-symbols-outlined text-4xl text-primary">wifi</span>
-            <span class="text-[9px] font-bold tracking-[0.2em] text-primary uppercase bg-primary/10 px-2 py-1 rounded-sm border border-primary/20">SECURE · WPA2</span>
+      <div class="card-grid g2" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-label">Check-in & Check-out</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <span style="font-size:14px;font-weight:500;">Check-in from</span>
+            <span class="time-big">12 PM</span>
           </div>
-          <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-2">Network Name (SSID)</p>
-          <h3 class="text-3xl font-black tracking-tight mb-6 text-on-surface">HAMELIA_5G</h3>
-          <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-2">Password</p>
-          <div class="flex items-center gap-3">
-            <p id="wifi-password" class="text-2xl font-black tracking-tight text-primary password-hidden">••••••••••</p>
-            <button tabindex="0" onclick="togglePassword()" class="focus-ring rounded p-1 text-on-surface-variant/40 hover:text-primary transition-colors" title="Reveal password">
-              <span id="eye-icon" class="material-symbols-outlined text-xl">visibility</span>
-            </button>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;">
+            <span style="font-size:14px;font-weight:500;">Check-out by</span>
+            <span class="time-big">11 AM</span>
           </div>
-          <p class="text-[10px] text-on-surface-variant/30 mt-3">Tap the eye icon to reveal · Replace this with actual password</p>
+          <div style="font-size:12px;color:var(--on-surface-dim);font-weight:300;margin-top:8px;">Early/late? Message us — we'll do our best.</div>
         </div>
-
-        <!-- Door / Key card -->
-        <div class="bg-surface-container-low rounded-sm p-8 ghost-border">
-          <span class="material-symbols-outlined text-4xl text-secondary mb-6">key</span>
-          <h3 class="text-xl font-bold tracking-tight mb-4">Door & Key</h3>
-          <div class="space-y-4">
-            <div class="rule-item pl-4 py-1">
-              <p class="text-sm font-semibold">Main entrance</p>
-              <p class="text-on-surface-variant text-xs font-light mt-0.5">Add instructions here — e.g. "ring bell, code is 4512"</p>
-            </div>
-            <div class="rule-item pl-4 py-1">
-              <p class="text-sm font-semibold">Room door</p>
-              <p class="text-on-surface-variant text-xs font-light mt-0.5">Key given at check-in — please return before leaving</p>
-            </div>
-            <div class="rule-item pl-4 py-1">
-              <p class="text-sm font-semibold">Lost key?</p>
-              <p class="text-on-surface-variant text-xs font-light mt-0.5">Call host immediately: +91 XXXXX XXXXX</p>
-            </div>
+        <div class="card">
+          <div class="card-label">Before you leave — checklist</div>
+          <div id="checklist">
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Switch off all lights & fans</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Turn off AC</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Switch off geyser</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Lock main door, leave key inside</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Close all windows</div></div>
           </div>
         </div>
-
-        <!-- Emergency contacts -->
-        <div class="col-span-2 bg-surface-container rounded-sm p-6 ghost-border">
-          <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Emergency & Useful Numbers</p>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="text-center">
-              <span class="material-symbols-outlined text-2xl text-primary/60">person</span>
-              <p class="text-xs font-bold mt-1">Your Host</p>
-              <p class="text-sm font-black text-primary mt-0.5">+91 XXXXX XXXXX</p>
-            </div>
-            <div class="text-center">
-              <span class="material-symbols-outlined text-2xl text-error/60">local_hospital</span>
-              <p class="text-xs font-bold mt-1">Hospital</p>
-              <p class="text-sm font-black text-on-surface mt-0.5">Add number</p>
-            </div>
-            <div class="text-center">
-              <span class="material-symbols-outlined text-2xl text-tertiary/60">local_police</span>
-              <p class="text-xs font-bold mt-1">Police</p>
-              <p class="text-sm font-black text-on-surface mt-0.5">100</p>
-            </div>
-            <div class="text-center">
-              <span class="material-symbols-outlined text-2xl text-secondary/60">local_fire_department</span>
-              <p class="text-xs font-bold mt-1">Fire</p>
-              <p class="text-sm font-black text-on-surface mt-0.5">101</p>
-            </div>
-          </div>
-        </div>
+      </div>
+      <div class="card-grid g3">
+        <div class="card"><div class="card-label">Smoking</div><div class="card-title">No smoking indoors</div><div class="card-body">Staircase landing only. Please dispose responsibly.</div></div>
+        <div class="card"><div class="card-label">Noise</div><div class="card-title">Quiet after 10 PM</div><div class="card-body">Commercial building. Other floors may be occupied.</div></div>
+        <div class="card"><div class="card-label">Guests</div><div class="card-title">Registered guests only</div><div class="card-body">Day visitors welcome — let us know. No overnight unregistered guests.</div></div>
+        <div class="card"><div class="card-label">Cleanliness</div><div class="card-title">Keep it tidy</div><div class="card-body">Bin liners under kitchen sink. Dustbin outside door for collection.</div></div>
+        <div class="card"><div class="card-label">Pets</div><div class="card-title">No pets — sorry</div><div class="card-body">Building policy. We'd love to say yes.</div></div>
+        <div class="card"><div class="card-label">General</div><div class="card-title">Treat it like home</div><div class="card-body">Accidents happen. Report damage honestly — we're not here to penalise.</div></div>
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════ SCREEN: APPLIANCE GUIDES ══════════════ -->
-  <div id="screen-appliances" class="screen p-4 lg:p-10 2xl:p-14 gap-6 items-start">
-    <div class="fade-up w-full">
-      <div class="mb-6">
-        <span class="inline-block py-1 px-3 bg-secondary/10 text-secondary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-secondary/20 mb-3">Device Manuals</span>
-        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Appliance Guides</h2>
+    <!-- BUILDING -->
+    <div class="content-screen" id="screen-building">
+      <div class="content-header">
+        <div class="content-tag">HAMELIA · Haldwani</div>
+        <h1 class="content-title">The <span>Building</span></h1>
+        <p class="content-sub">A four-unit commercial building in central Haldwani. You're on the top floor.</p>
       </div>
-
-      <!-- Tabs -->
-      <div class="flex gap-2 mb-6 overflow-x-auto hide-scroll pb-2" id="appliance-tabs">
-        <button onclick="showAppliance('ac')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 active flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase transition-all" data-tab="ac">
-          <span class="material-symbols-outlined text-sm">ac_unit</span> Air Conditioner
-        </button>
-        <button onclick="showAppliance('geyser')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="geyser">
-          <span class="material-symbols-outlined text-sm">water_heater</span> Geyser
-        </button>
-        <button onclick="showAppliance('tv')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="tv">
-          <span class="material-symbols-outlined text-sm">tv</span> TV / Google TV
-        </button>
-        <button onclick="showAppliance('misc')" tabindex="0" class="appliance-tab focus-ring whitespace-nowrap shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border border-outline-variant/20 text-xs font-bold tracking-wider uppercase text-on-surface-variant transition-all" data-tab="misc">
-          <span class="material-symbols-outlined text-sm">devices_other</span> Other Devices
-        </button>
-      </div>
-
-      <!-- AC Guide -->
-      <div id="appliance-ac" class="appliance-content">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="col-span-1 bg-surface-container-low rounded-sm p-6 ghost-border">
-            <span class="material-symbols-outlined text-3xl text-primary mb-4">ac_unit</span>
-            <h3 class="text-lg font-bold mb-3">AC Remote Guide</h3>
-            <p class="text-on-surface-variant text-xs leading-relaxed font-light mb-4">Split AC — Daikin / Hitachi (update brand). Remote is on the side table.</p>
-            <div class="space-y-2">
-              <div class="flex items-center gap-3 text-sm">
-                <span class="w-6 h-6 rounded-sm bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">❄</span>
-                <span class="font-semibold">Cool mode</span>
-                <span class="text-on-surface-variant text-xs ml-auto">Default</span>
-              </div>
-              <div class="flex items-center gap-3 text-sm">
-                <span class="w-6 h-6 rounded-sm bg-secondary/10 flex items-center justify-center text-secondary text-xs font-bold">♨</span>
-                <span class="font-semibold">Heat mode</span>
-                <span class="text-on-surface-variant text-xs ml-auto">Winter use</span>
-              </div>
-              <div class="flex items-center gap-3 text-sm">
-                <span class="w-6 h-6 rounded-sm bg-tertiary/10 flex items-center justify-center text-tertiary text-xs font-bold">≋</span>
-                <span class="font-semibold">Fan only</span>
-                <span class="text-on-surface-variant text-xs ml-auto">No cooling</span>
-              </div>
-              <div class="flex items-center gap-3 text-sm">
-                <span class="w-6 h-6 rounded-sm bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold">💧</span>
-                <span class="font-semibold">Dry mode</span>
-                <span class="text-on-surface-variant text-xs ml-auto">Dehumidify</span>
-              </div>
-            </div>
+      <div class="card-grid g3" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="floor-badge" style="background:rgba(233,195,73,0.08);color:var(--secondary);">Ground Floor</div>
+          <div class="card-title">The Café ☕</div>
+          <div class="card-body">Right downstairs. Coffee and snacks. Great for your first morning — you don't even need to leave the building.</div>
+          <div class="divider"></div>
+          <div style="font-size:10px;color:var(--on-surface-dim);opacity:0.4;letter-spacing:0.15em;">Hours · Add info</div>
+        </div>
+        <div class="card">
+          <div class="floor-badge" style="background:rgba(197,198,202,0.06);color:var(--tertiary);">1st Floor</div>
+          <div class="card-title">Dental Clinic 🦷</div>
+          <div class="card-body">A dental practice on the first floor. Useful to know if you need it during your stay.</div>
+          <div class="divider"></div>
+          <div style="font-size:10px;color:var(--on-surface-dim);opacity:0.4;letter-spacing:0.15em;">By Appointment</div>
+        </div>
+        <div class="card" style="border-color:rgba(239,187,170,0.2);background:rgba(239,187,170,0.03);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div class="floor-badge" style="background:rgba(239,187,170,0.1);color:var(--primary);">2nd Floor</div>
+            <span style="font-size:8px;font-weight:700;letter-spacing:0.2em;color:var(--primary);background:rgba(239,187,170,0.08);padding:3px 8px;border-radius:2px;">YOU ARE HERE</span>
           </div>
-          <div class="col-span-1 lg:col-span-2 grid grid-rows-2 gap-5">
-            <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-              <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-3">Temperature & Timer</p>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p class="text-sm font-semibold mb-2">Setting temperature</p>
-                  <p class="text-on-surface-variant text-xs leading-relaxed font-light">Use ▲ ▼ buttons. Recommended: <span class="text-primary font-semibold">24–26°C</span> for comfort. Press <span class="text-secondary font-semibold">TEMP+/−</span> to adjust.</p>
-                </div>
-                <div>
-                  <p class="text-sm font-semibold mb-2">Sleep / Auto-off timer</p>
-                  <p class="text-on-surface-variant text-xs leading-relaxed font-light">Press <span class="text-secondary font-semibold">TIMER</span> button. Set hours using ▲▼, then press SET. AC will switch off automatically.</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-              <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-3">Troubleshooting</p>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="rule-item pl-3 py-1">
-                  <p class="text-xs font-semibold">Not cooling?</p>
-                  <p class="text-on-surface-variant text-xs font-light mt-0.5">Check mode is COOL, not fan. Temp below room temp.</p>
-                </div>
-                <div class="rule-item pl-3 py-1">
-                  <p class="text-xs font-semibold">Remote not working?</p>
-                  <p class="text-on-surface-variant text-xs font-light mt-0.5">Spare batteries in the bedside drawer.</p>
-                </div>
-                <div class="rule-item pl-3 py-1">
-                  <p class="text-xs font-semibold">Unusual noise?</p>
-                  <p class="text-on-surface-variant text-xs font-light mt-0.5">Please call host — do not continue running it.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="card-title">HAMELIA Residence 🏠</div>
+          <div class="card-body">Your space. Top floor — quieter, better light, best views. Check-out 11 AM.</div>
         </div>
       </div>
-
-      <!-- Geyser Guide -->
-      <div id="appliance-geyser" class="appliance-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div class="bg-surface-container-low rounded-sm p-8 ghost-border">
-            <span class="material-symbols-outlined text-3xl text-secondary mb-4">water_heater</span>
-            <h3 class="text-lg font-bold mb-4">Water Heater (Geyser)</h3>
-            <div class="space-y-4">
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold text-secondary">Step 1 — Switch on</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">Geyser switch is on the bathroom wall (red switch near the mirror). Turn it ON 10–15 minutes before your shower.</p>
-              </div>
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">Step 2 — Wait</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">Indicator light turns off when water is hot enough. Usually 10 minutes for a good shower.</p>
-              </div>
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">Step 3 — Switch OFF after use</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1 text-primary/80 font-semibold">Important: Always switch the geyser off after your shower. Do not leave it on overnight.</p>
-              </div>
-            </div>
-          </div>
-          <div class="bg-surface-container rounded-sm p-8 ghost-border flex flex-col justify-between">
-            <div>
-              <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Good to Know</p>
-              <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <span class="material-symbols-outlined text-base text-primary/60 mt-0.5">info</span>
-                  <p class="text-xs text-on-surface-variant font-light leading-relaxed">Capacity: approx. 15L. Enough for 1 long shower or 2 quick ones.</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <span class="material-symbols-outlined text-base text-secondary/60 mt-0.5">warning</span>
-                  <p class="text-xs text-on-surface-variant font-light leading-relaxed">Water pressure may be lower in the morning peak hours (7–9 AM).</p>
-                </div>
-              </div>
-            </div>
-            <div class="mt-6 p-4 bg-primary/5 border border-primary/15 rounded-sm">
-              <p class="text-xs text-primary/70 font-semibold">Any issues with hot water? Call host: +91 XXXXX XXXXX</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TV Guide -->
-      <div id="appliance-tv" class="appliance-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="bg-surface-container-low rounded-sm p-7 ghost-border">
-            <span class="material-symbols-outlined text-3xl text-primary mb-4">tv</span>
-            <h3 class="text-lg font-bold mb-4">Google TV Remote</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center text-sm border-b border-outline-variant/10 pb-2">
-                <span class="font-semibold">Power</span>
-                <span class="text-on-surface-variant text-xs">Top button</span>
-              </div>
-              <div class="flex justify-between items-center text-sm border-b border-outline-variant/10 pb-2">
-                <span class="font-semibold">Google Assistant</span>
-                <span class="text-secondary text-xs">Mic button</span>
-              </div>
-              <div class="flex justify-between items-center text-sm border-b border-outline-variant/10 pb-2">
-                <span class="font-semibold">Home</span>
-                <span class="text-on-surface-variant text-xs">House icon</span>
-              </div>
-              <div class="flex justify-between items-center text-sm border-b border-outline-variant/10 pb-2">
-                <span class="font-semibold">Back</span>
-                <span class="text-on-surface-variant text-xs">← Arrow</span>
-              </div>
-              <div class="flex justify-between items-center text-sm">
-                <span class="font-semibold">Netflix / YouTube</span>
-                <span class="text-on-surface-variant text-xs">Shortcut buttons</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-span-1 lg:col-span-2 bg-surface-container-low rounded-sm p-7 ghost-border">
-            <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Streaming & Channels</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">Netflix / Prime / YouTube</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">Pre-installed. Sign in with your own account or ask host if a guest account is available.</p>
-              </div>
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">Live TV (DD / Cable)</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">Add cable/DTH info here. Remote input: press INPUT to switch sources.</p>
-              </div>
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">HDMI / Laptop</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">HDMI cable available in the drawer. Press INPUT → HDMI1 to mirror your laptop/phone.</p>
-              </div>
-              <div class="rule-item pl-4 py-2">
-                <p class="text-sm font-bold">Volume not working?</p>
-                <p class="text-on-surface-variant text-xs font-light mt-1">Check TV isn't muted. Spare batteries in bedside table drawer.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Misc devices -->
-      <div id="appliance-misc" class="appliance-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-            <span class="material-symbols-outlined text-2xl text-tertiary mb-3">power</span>
-            <h3 class="text-base font-bold mb-3">Power & Charging</h3>
-            <p class="text-on-surface-variant text-xs font-light leading-relaxed">Universal sockets at bedside and desk. Extension board in the cupboard. Indian 3-pin plugs. Voltage: 220V 50Hz.</p>
-          </div>
-          <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-            <span class="material-symbols-outlined text-2xl text-secondary mb-3">kitchen</span>
-            <h3 class="text-base font-bold mb-3">Kettle / Microwave</h3>
-            <p class="text-on-surface-variant text-xs font-light leading-relaxed">Add info here if applicable. e.g. "Kettle on kitchen counter — plug in and press ON. Do not run dry."</p>
-          </div>
-          <div class="bg-surface-container-low rounded-sm p-6 ghost-border">
-            <span class="material-symbols-outlined text-2xl text-primary mb-3">light</span>
-            <h3 class="text-base font-bold mb-3">Lights & Fans</h3>
-            <p class="text-on-surface-variant text-xs font-light leading-relaxed">All switches on the main board near the entrance. Dimmer switch for bedside lamp — rotate to adjust brightness.</p>
-          </div>
-        </div>
+      <div class="card-grid g4">
+        <div class="card"><div class="card-label">Access</div><div class="card-title">Staircase</div><div class="card-body">No lift. Two flights up.</div></div>
+        <div class="card"><div class="card-label">Parking</div><div class="card-title">Add info</div><div class="card-body">Add parking details here.</div></div>
+        <div class="card"><div class="card-label">Security</div><div class="card-title">Add info</div><div class="card-body">Add building security info.</div></div>
+        <div class="card"><div class="card-label">Gallery</div><div class="card-title" style="color:var(--primary);opacity:0.4;">Photos coming</div><div class="card-body">Add your photos once collated.</div></div>
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════ SCREEN: HOUSE RULES ══════════════ -->
-  <div id="screen-rules" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
-    <div class="fade-up max-w-5xl">
-      <div class="mb-8">
-        <span class="inline-block py-1 px-3 bg-outline-variant/20 text-on-surface-variant text-[9px] font-bold tracking-widest uppercase rounded-sm border border-outline-variant/20 mb-3">Policy & Safety</span>
-        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">House Rules</h2>
-        <p class="text-on-surface-variant text-base mt-3 font-light">Simple rules to keep the space great for everyone. Most of this is common sense — we just like to be clear.</p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-        <!-- Check-in / out -->
-        <div class="bg-surface-container-low rounded-sm p-7 ghost-border">
-          <span class="material-symbols-outlined text-2xl text-secondary mb-4">schedule</span>
-          <h3 class="text-base font-bold tracking-tight mb-4 uppercase text-secondary text-sm">Check-in & Check-out</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-semibold">Check-in from</span>
-              <span class="text-primary font-black text-lg">12:00 PM</span>
-            </div>
-            <div class="h-px bg-outline-variant/10"></div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-semibold">Check-out by</span>
-              <span class="text-primary font-black text-lg">11:00 AM</span>
-            </div>
-            <div class="h-px bg-outline-variant/10"></div>
-            <p class="text-on-surface-variant text-xs font-light">Early check-in or late check-out? Message us — we'll do our best.</p>
-          </div>
-        </div>
-
-        <!-- Checkout checklist -->
-        <div class="bg-surface-container-low rounded-sm p-7 ghost-border">
-          <span class="material-symbols-outlined text-2xl text-primary mb-4">checklist</span>
-          <h3 class="text-sm font-bold tracking-tight mb-4 uppercase text-primary">Before You Leave</h3>
-          <div class="space-y-2.5">
-            <label class="flex items-center gap-3 text-sm cursor-pointer group">
-              <input type="checkbox" class="w-4 h-4 rounded-sm accent-primary bg-surface-container-high border-outline-variant"/>
-              <span class="text-on-surface-variant group-hover:text-on-surface transition-colors">Switch off all lights & fans</span>
-            </label>
-            <label class="flex items-center gap-3 text-sm cursor-pointer group">
-              <input type="checkbox" class="w-4 h-4 rounded-sm accent-primary bg-surface-container-high border-outline-variant"/>
-              <span class="text-on-surface-variant group-hover:text-on-surface transition-colors">Turn off AC</span>
-            </label>
-            <label class="flex items-center gap-3 text-sm cursor-pointer group">
-              <input type="checkbox" class="w-4 h-4 rounded-sm accent-primary bg-surface-container-high border-outline-variant"/>
-              <span class="text-on-surface-variant group-hover:text-on-surface transition-colors">Switch off geyser</span>
-            </label>
-            <label class="flex items-center gap-3 text-sm cursor-pointer group">
-              <input type="checkbox" class="w-4 h-4 rounded-sm accent-primary bg-surface-container-high border-outline-variant"/>
-              <span class="text-on-surface-variant group-hover:text-on-surface transition-colors">Lock main door, leave key inside</span>
-            </label>
-            <label class="flex items-center gap-3 text-sm cursor-pointer group">
-              <input type="checkbox" class="w-4 h-4 rounded-sm accent-primary bg-surface-container-high border-outline-variant"/>
-              <span class="text-on-surface-variant group-hover:text-on-surface transition-colors">Close all windows</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rules grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">smoking_rooms</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">Smoking</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">No smoking indoors</p>
-          <p class="text-xs text-on-surface-variant font-light">Smoking only on the staircase landing. Please dispose of butts responsibly.</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">volume_off</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">Noise</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">Quiet after 10 PM</p>
-          <p class="text-xs text-on-surface-variant font-light">This is a commercial building. Please keep noise down after 10PM — other floors may be occupied.</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">group</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">Guests</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">Registered guests only</p>
-          <p class="text-xs text-on-surface-variant font-light">Only guests listed on the booking may stay overnight. Day visitors are fine — let us know.</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">cleaning_services</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">Cleanliness</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">Keep it tidy</p>
-          <p class="text-xs text-on-surface-variant font-light">Bin liners under the kitchen sink. Dustbin to be left outside door for collection.</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">pets</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">Pets</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">No pets — sorry!</p>
-          <p class="text-xs text-on-surface-variant font-light">Building policy. We'd love to say yes but the building doesn't permit it.</p>
-        </div>
-        <div class="bg-surface-container rounded-sm p-5 ghost-border">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="material-symbols-outlined text-base text-on-surface-variant/40">sentiment_satisfied</span>
-            <p class="text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40">General</p>
-          </div>
-          <p class="text-sm font-semibold mb-1">Treat it like home</p>
-          <p class="text-xs text-on-surface-variant font-light">Report any damage honestly — accidents happen. We're not here to penalise, just to fix things.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════ SCREEN: LOCAL GEMS ══════════════ -->
-  <div id="screen-local" class="screen scroll-panel p-4 lg:p-10 2xl:p-14 flex-col gap-8">
-    <div class="fade-up max-w-5xl">
-      <div class="mb-8">
-        <span class="inline-block py-1 px-3 bg-secondary/10 text-secondary text-[9px] font-bold tracking-widest uppercase rounded-sm border border-secondary/20 mb-3">Around You</span>
-        <h2 class="text-3xl lg:text-5xl 2xl:text-6xl font-extrabold tracking-tighter">Local Gems</h2>
-        <p class="text-on-surface-variant text-base mt-3 font-light">Haldwani is the gateway to Kumaon. Here's what's worth your time — in the city and beyond.</p>
-      </div>
-
-      <!-- In the building highlight -->
-      <div class="bg-secondary/5 border border-secondary/20 rounded-sm p-6 mb-6 flex items-center gap-6">
-        <span class="material-symbols-outlined text-4xl text-secondary">local_cafe</span>
-        <div>
-          <span class="text-[9px] font-bold tracking-[0.3em] text-secondary uppercase">Right Downstairs · Ground Floor</span>
-          <h3 class="text-xl font-bold tracking-tight mt-1">The Café at HAMELIA</h3>
-          <p class="text-on-surface-variant text-sm font-light mt-1">You don't even have to leave the building for your first coffee. Great way to start the day.</p>
-        </div>
-      </div>
-
-      <!-- Local food -->
-      <div class="mb-6">
-        <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Food & Eats · Haldwani</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border cursor-pointer">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-primary/60">restaurant</span>
-              <span class="text-[8px] font-bold tracking-widest text-on-surface-variant/30 uppercase">Add distance</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Add your favourite restaurant</h4>
-            <p class="text-xs text-on-surface-variant font-light">Describe what's good here. Add address or Google Maps link.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border cursor-pointer">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-secondary/60">local_dining</span>
-              <span class="text-[8px] font-bold tracking-widest text-on-surface-variant/30 uppercase">Add distance</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Favourite dhaba / thali</h4>
-            <p class="text-xs text-on-surface-variant font-light">Local food is the best food. Add your top pick for an authentic meal.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border cursor-pointer">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-tertiary/60">ice_cream</span>
-              <span class="text-[8px] font-bold tracking-widest text-on-surface-variant/30 uppercase">Add distance</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Sweets & chai spots</h4>
-            <p class="text-xs text-on-surface-variant font-light">Add your favourite mithai shop or chai stall nearby.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Day trips -->
-      <div>
-        <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant/40 mb-4">Day Trips from Haldwani</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-primary/70">terrain</span>
-              <span class="text-[8px] font-bold tracking-widest text-primary/50 uppercase bg-primary/5 px-2 py-0.5 rounded-sm">~35 km</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Nainital</h4>
-            <p class="text-xs text-on-surface-variant font-light">The lake city. Naini Lake, Mall Road, boat rides. A classic — go in the morning to beat crowds.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-secondary/70">forest</span>
-              <span class="text-[8px] font-bold tracking-widest text-secondary/50 uppercase bg-secondary/5 px-2 py-0.5 rounded-sm">~75 km</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Jim Corbett</h4>
-            <p class="text-xs text-on-surface-variant font-light">India's oldest national park. Tiger safaris, bird watching, nature. Book ahead — popular year-round.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-tertiary/70">temple_hindu</span>
-              <span class="text-[8px] font-bold tracking-widest text-tertiary/50 uppercase bg-tertiary/5 px-2 py-0.5 rounded-sm">~50 km</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Mukteshwar</h4>
-            <p class="text-xs text-on-surface-variant font-light">Hill station with Himalayan views, apple orchards, and a Shiva temple. Peaceful, less touristy.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-primary/50">landscape</span>
-              <span class="text-[8px] font-bold tracking-widest text-on-surface-variant/30 uppercase bg-surface-container px-2 py-0.5 rounded-sm">~90 km</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Kausani</h4>
-            <p class="text-xs text-on-surface-variant font-light">Panoramic Himalayan views including Trisul & Nanda Devi. Gandhi called it the Switzerland of India.</p>
-          </div>
-          <div class="gem-card bg-surface-container-low rounded-sm p-5 ghost-border">
-            <div class="flex items-center justify-between mb-3">
-              <span class="material-symbols-outlined text-xl text-secondary/50">water</span>
-              <span class="text-[8px] font-bold tracking-widest text-on-surface-variant/30 uppercase bg-surface-container px-2 py-0.5 rounded-sm">~25 km</span>
-            </div>
-            <h4 class="text-sm font-bold mb-1">Bhimtal</h4>
-            <p class="text-xs text-on-surface-variant font-light">Quieter lake town near Nainital. The lake has a small island with an aquarium. Very relaxed vibe.</p>
-          </div>
-          <div class="gem-card bg-surface-container rounded-sm p-5 ghost-border border-dashed flex items-center justify-center gap-3 text-on-surface-variant/30 cursor-pointer hover:border-primary/20 hover:text-primary/40 transition-colors">
-            <span class="material-symbols-outlined text-xl">add</span>
-            <p class="text-xs font-semibold">Add your own gem</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- end main wrapper -->
-
-<!-- Watermark -->
-<div class="watermark text-white">SS304</div>
+  </div><!-- /content-panel -->
+</div><!-- /app -->
 
 <script>
-  // ─── D-PAD Focus & Enter key ─────────────────────────────
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const el = document.activeElement;
-      if (el && typeof el.onclick === 'function') {
-        el.click();
-      } else if (el && el.hasAttribute('onclick')) {
-        el.click();
-      }
-    }
+// ── State ────────────────────────────────────────────
+let currentSection = null;
+const WIFI_PASSWORD = 'YourPasswordHere';
+let wifiRevealed = false;
+
+// ── Clock ────────────────────────────────────────────
+function tick() {
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('clock').textContent = t;
+  document.getElementById('content-clock').textContent = t;
+}
+tick();
+setInterval(tick, 15000);
+
+// ── Node positions (percent of orbital panel) ────────
+const nodes = [
+  { id:'wifi',       angle: -90  },
+  { id:'appliances', angle: -18  },
+  { id:'local',      angle:  54  },
+  { id:'rules',      angle:  126 },
+  { id:'building',   angle:  198 },
+];
+
+const ORBIT_R_VW = 0.27;
+
+function positionNodes() {
+  const panel = document.getElementById('orbital');
+  const W = panel.offsetWidth;
+  const H = panel.offsetHeight;
+  const cx = W / 2, cy = H / 2;
+  const r = Math.min(W, H) * ORBIT_R_VW;
+
+  nodes.forEach(n => {
+    const el = document.getElementById('node-' + n.id);
+    const rad = (n.angle * Math.PI) / 180;
+    const x = cx + r * Math.cos(rad);
+    const y = cy + r * Math.sin(rad);
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
   });
 
-  // ─── Clock ───────────────────────────────────────────────
-  function updateClock() {
-    const now = new Date();
-    const h = now.getHours().toString().padStart(2, '0');
-    const m = now.getMinutes().toString().padStart(2, '0');
-    document.getElementById('clock').textContent = `${h}:${m}`;
-  }
-  updateClock();
-  setInterval(updateClock, 30000);
+  // centre
+  const centre = document.getElementById('centre');
+  centre.style.left = cx + 'px';
+  centre.style.top  = cy + 'px';
 
-  // ─── Screen navigation ────────────────────────────────────
-  const pageTitles = {
-    welcome: ['Welcome', 'Resident Portal'],
-    building: ['The Building', 'HAMELIA · Haldwani'],
-    wifi: ['Wi-Fi & Access', 'Connectivity'],
-    appliances: ['Appliance Guides', 'Device Manuals'],
-    rules: ['House Rules', 'Policy & Safety'],
-    local: ['Local Gems', 'Around You'],
-  };
+  drawConnectors(cx, cy, r);
+}
 
-  function showScreen(name) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(s => {
-      s.classList.remove('active');
-      s.classList.remove('fade-up');
-    });
-    // Show target
-    const target = document.getElementById('screen-' + name);
-    if (target) {
-      target.classList.add('active');
-      void target.offsetWidth; // reflow for animation
-      target.querySelector('.fade-up') || target.classList.add('fade-up');
-      // re-trigger fade on inner element
-      const inner = target.querySelector('[class*="fade-up"]') || target;
-      inner.style.animation = 'none';
-      void inner.offsetWidth;
-      inner.style.animation = '';
+// ── SVG dashed connectors ────────────────────────────
+function drawConnectors(cx, cy, r) {
+  const svg = document.getElementById('connector-svg');
+  svg.innerHTML = '';
+  nodes.forEach(n => {
+    const rad = (n.angle * Math.PI) / 180;
+    const nx = cx + r * Math.cos(rad);
+    const ny = cy + r * Math.sin(rad);
+    const dist = r;
+    const innerR = 78;
+    const ix = cx + innerR * Math.cos(rad);
+    const iy = cy + innerR * Math.sin(rad);
+    const outerR = r - 48;
+    const ox = cx + outerR * Math.cos(rad);
+    const oy = cy + outerR * Math.sin(rad);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', ix); line.setAttribute('y1', iy);
+    line.setAttribute('x2', ox); line.setAttribute('y2', oy);
+    line.setAttribute('stroke','rgba(239,187,170,0.1)');
+    line.setAttribute('stroke-width','1');
+    line.setAttribute('stroke-dasharray','4 6');
+    svg.appendChild(line);
+  });
+}
+
+// ── Open section ─────────────────────────────────────
+function openSection(id) {
+  currentSection = id;
+
+  // hide all content screens
+  document.querySelectorAll('.content-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+
+  // update strip active state
+  document.querySelectorAll('.strip-node').forEach(n => n.classList.remove('active'));
+  const sn = document.getElementById('strip-' + id);
+  if (sn) sn.classList.add('active');
+
+  // open
+  document.getElementById('app').classList.add('content-open');
+}
+
+// ── Go home ──────────────────────────────────────────
+function goHome() {
+  document.getElementById('app').classList.remove('content-open');
+  currentSection = null;
+  document.querySelectorAll('.strip-node').forEach(n => n.classList.remove('active'));
+}
+
+// ── Handle click on orbital when collapsed ───────────
+function handleOrbitalClick(e) {
+  const app = document.getElementById('app');
+  if (app.classList.contains('content-open')) {
+    if (!e.target.closest('.strip-node') && !e.target.closest('.strip-home')) {
+      goHome();
     }
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.remove('active');
-      if (el.dataset.screen === name) el.classList.add('active');
-    });
-    // Update header
-    const titles = pageTitles[name] || ['HAMELIA', ''];
-    document.getElementById('page-title').textContent = titles[0];
-    document.getElementById('page-sub').textContent = titles[1];
   }
+}
 
-  // ─── Appliance tabs ───────────────────────────────────────
-  function showAppliance(name) {
-    document.querySelectorAll('.appliance-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById('appliance-' + name).classList.remove('hidden');
-    document.querySelectorAll('.appliance-tab').forEach(el => {
-      el.classList.remove('active');
-      if (el.dataset.tab === name) el.classList.add('active');
-    });
-  }
+// ── Wi-Fi reveal ─────────────────────────────────────
+function toggleWifi() {
+  const el = document.getElementById('wifi-pass');
+  const btn = document.querySelector('.reveal-btn');
+  wifiRevealed = !wifiRevealed;
+  el.textContent = wifiRevealed ? WIFI_PASSWORD : '••••••••••';
+  btn.textContent = wifiRevealed ? 'Hide' : 'Reveal';
+}
 
-  // ─── WiFi password toggle ─────────────────────────────────
-  const ACTUAL_PASSWORD = 'YourPasswordHere'; // ← replace this
-  let passwordRevealed = false;
-  function togglePassword() {
-    const el = document.getElementById('wifi-password');
-    const icon = document.getElementById('eye-icon');
-    if (!passwordRevealed) {
-      el.textContent = ACTUAL_PASSWORD;
-      el.classList.remove('password-hidden');
-      icon.textContent = 'visibility_off';
-    } else {
-      el.textContent = '••••••••••';
-      el.classList.add('password-hidden');
-      icon.textContent = 'visibility';
-    }
-    passwordRevealed = !passwordRevealed;
-  }
+// ── Appliance tabs ───────────────────────────────────
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.app-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ── Checklist ────────────────────────────────────────
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+}
+
+// ── Keyboard / remote navigation ─────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' || e.key === 'Backspace') goHome();
+});
+
+// ── Init ─────────────────────────────────────────────
+positionNodes();
+window.addEventListener('resize', positionNodes);
 </script>
 </body>
 </html>
