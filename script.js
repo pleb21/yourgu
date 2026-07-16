@@ -271,6 +271,15 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPicker('shape-picker', 'poop-shape');
   setupPicker('color-picker', 'poop-color');
 
+  const poopNotes = document.getElementById('poop-notes');
+  const savedDraft = localStorage.getItem('poopNotesDraft');
+  if (savedDraft) {
+    poopNotes.value = savedDraft;
+  }
+  poopNotes.addEventListener('input', () => {
+    localStorage.setItem('poopNotesDraft', poopNotes.value);
+  });
+
   document.getElementById('poop-form').addEventListener('submit', e => {
     e.preventDefault();
     const shape = document.getElementById('poop-shape').value;
@@ -288,9 +297,10 @@ document.addEventListener('DOMContentLoaded', () => {
       date: new Date().toLocaleString()
     });
     localStorage.setItem('poopLog', JSON.stringify(poopLog));
+    localStorage.removeItem('poopNotesDraft');
     document.getElementById('poop-form').reset();
     document.querySelectorAll('.picker-icon.selected').forEach(el => el.classList.remove('selected'));
-  
+
     loadPoopHistory();
     loadPoopHeatmap();
   });
