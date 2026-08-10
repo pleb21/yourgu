@@ -1,0 +1,106 @@
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+let currentKey;
+let currentBlocks;
+
+function renderTimeline(blocks) {
+  const timeline = document.getElementById('timeline');
+  const emptyHint = document.getElementById('empty-hint');
+  emptyHint.style.display = blocks.length === 0 ? 'block' : 'none';
+
+  timeline.innerHTML = '';
+
+  for (let hour = 0; hour < 24; hour++) {
+    const row = document.createElement('div');
+    row.className = 'hour-row';
+
+    const label = document.createElement('div');
+    label.className = 'hour-label';
+    label.textContent = String(hour).padStart(2, '0') + ':00';
+    row.appendChild(label);
+
+    const slot = document.createElement('div');
+    slot.className = 'hour-slot';
+    row.appendChild(slot);
+
+    timeline.appendChild(row);
+  }
+
+  const blocksLayer = document.createElement('div');
+  blocksLayer.className = 'blocks-layer';
+  blocks.forEach((b, index) => {
+    const el = document.createElement('div');
+    el.className = 'activity-block';
+    const startMin = timeToMinutes(b.start);
+    const endMin = timeToMinutes(b.end);
+    el.style.top = `calc(${startMin} / 60 * var(--hour-height))`;
+    el.style.height = `calc(${endMin - startMin} / 60 * var(--hour-height))`;
+    el.textContent = b.label;
+    el.title = 'Click to delete';
+    el.addEventListener('click', () => handleBlockClick(index));
+    blocksLayer.appendChild(el);
+  });
+  timeline.appendChild(blocksLayer);
+}
+
+function renderDate() {
+  const el = document.getElementById('current-date');
+  const today = new Date();
+  el.textContent = today.toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function persistAndRender() {
+  saveDay(currentKey, currentBlocks);
+  renderTimeline(currentBlocks);
+}
+
+function handleBlockClick(index) {
+  const block = currentBlocks[index];
+  if (confirm(`Delete "${block.label}" (${block.start}-${block.end})?`)) {
+    currentBlocks.splice(index, 1);
+    persistAndRender();
+  }
+}
+
+function handleAddSubmit(e) {
+  e.preventDefault();
+  const labelInput = document.getElementById('label-input');
+  const startInput = document.getElementById('start-input');
+  const endInput = document.getElementById('end-input');
+
+  const label = labelInput.value.trim();
+  const start = startInput.value;
+  const end = endInput.value;
+
+  if (!label || !start || !end) return;
+  if (timeToMinutes(end) <= timeToMinutes(start)) {
+    alert('End time must be after start time.');
+    return;
+  }
+
+  currentBlocks.push({ start, end, label });
+  currentBlocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+  persistAndRender();
+
+  labelInput.value = '';
+  startInput.value = '';
+  endInput.value = '';
+  labelInput.focus();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderDate();
+  currentKey = dateKey(new Date());
+  currentBlocks = loadDay(currentKey);
+  renderTimeline(currentBlocks);
+
+  document.getElementById('add-form').addEventListener('submit', handleAddSubmit);
+});

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dinchor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>dinchor</h1>
+    <div id="current-date"></div>
+  </header>
+  <main>
+    <form id="add-form">
+      <input type="text" id="label-input" placeholder="What are you doing?" required />
+      <input type="time" id="start-input" required />
+      <input type="time" id="end-input" required />
+      <button type="submit">Add</button>
+    </form>
+    <p id="empty-hint">No entries yet today. Add your first one above.</p>
+    <div id="timeline"></div>
+  </main>
+  <script src="storage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
