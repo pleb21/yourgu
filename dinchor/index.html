@@ -17,6 +17,15 @@
       <input type="time" id="start-input" required />
       <input type="time" id="end-input" required />
       <button type="submit">Add</button>
+      <div id="duration-chips">
+        <button type="button" class="chip" data-minutes="5">5m</button>
+        <button type="button" class="chip" data-minutes="10">10m</button>
+        <button type="button" class="chip" data-minutes="15">15m</button>
+        <button type="button" class="chip" data-minutes="30">30m</button>
+        <button type="button" class="chip" data-minutes="45">45m</button>
+        <button type="button" class="chip" data-minutes="60">1h</button>
+        <button type="button" class="chip" data-minutes="120">2h</button>
+      </div>
     </form>
     <p id="empty-hint">No entries yet today. Add your first one above.</p>
     <div id="timeline"></div>

@@ -3,8 +3,21 @@ function timeToMinutes(t) {
   return h * 60 + m;
 }
 
+function minutesToTime(mins) {
+  const clamped = Math.max(0, Math.min(23 * 60 + 59, mins));
+  const h = Math.floor(clamped / 60);
+  const m = clamped % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+function nowTimeString() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
 let currentKey;
 let currentBlocks;
+let anchorField = 'end'; // 'start' or 'end' — which time field duration chips fill relative to
 
 function renderTimeline(blocks) {
   const timeline = document.getElementById('timeline');
@@ -91,9 +104,27 @@ function handleAddSubmit(e) {
   persistAndRender();
 
   labelInput.value = '';
-  startInput.value = '';
-  endInput.value = '';
+  startInput.value = nowTimeString();
+  endInput.value = nowTimeString();
+  setAnchorField('end');
   labelInput.focus();
+}
+
+function setAnchorField(field) {
+  anchorField = field;
+  document.getElementById('start-input').classList.toggle('anchor-field', field === 'start');
+  document.getElementById('end-input').classList.toggle('anchor-field', field === 'end');
+}
+
+function handleChipClick(minutes) {
+  const startInput = document.getElementById('start-input');
+  const endInput = document.getElementById('end-input');
+
+  if (anchorField === 'start' && startInput.value) {
+    endInput.value = minutesToTime(timeToMinutes(startInput.value) + minutes);
+  } else if (endInput.value) {
+    startInput.value = minutesToTime(timeToMinutes(endInput.value) - minutes);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -101,6 +132,19 @@ document.addEventListener('DOMContentLoaded', () => {
   currentKey = dateKey(new Date());
   currentBlocks = loadDay(currentKey);
   renderTimeline(currentBlocks);
+
+  const startInput = document.getElementById('start-input');
+  const endInput = document.getElementById('end-input');
+  startInput.value = nowTimeString();
+  endInput.value = nowTimeString();
+  setAnchorField('end');
+
+  startInput.addEventListener('input', () => setAnchorField('start'));
+  endInput.addEventListener('input', () => setAnchorField('end'));
+
+  document.querySelectorAll('.chip').forEach((btn) => {
+    btn.addEventListener('click', () => handleChipClick(Number(btn.dataset.minutes)));
+  });
 
   document.getElementById('add-form').addEventListener('submit', handleAddSubmit);
 });
