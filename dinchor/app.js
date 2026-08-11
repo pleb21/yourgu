@@ -38,6 +38,11 @@ function addDays(date, delta) {
   return d;
 }
 
+function keyToDate(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -146,33 +151,147 @@ function goToDate(date) {
   loadCurrentDay();
 }
 
-function persistAndRender() {
-  saveDay(currentKey, currentBlocks);
-  renderTimeline(currentBlocks);
+// Reads/writes below always go through these two so that editing an entry
+// anchored on a day other than the one currently on screen (the tomorrow-side
+// half of an overnight entry) still keeps `currentBlocks` in sync.
+function loadBlocksForKey(key) {
+  return key === currentKey ? currentBlocks : loadDay(key);
 }
 
-function blockTimeRangeLabel(block) {
-  if (block.crossesMidnight === 'next') return `${block.start} → ${block.end} tomorrow`;
-  if (block.crossesMidnight === 'prev') return `yesterday ${block.start} → ${block.end}`;
-  return `${block.start}-${block.end}`;
-}
-
-function removeLinkedBlock(key, id) {
-  const blocks = loadDay(key).filter((b) => b.id !== id);
+function saveBlocksForKey(key, blocks) {
+  blocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
   saveDay(key, blocks);
+  if (key === currentKey) currentBlocks = blocks;
+}
+
+// The day an entry's start time belongs to, regardless of which half
+// (today's or the linked continuation) is currently on screen.
+function anchorKeyForBlock(block) {
+  return block.crossesMidnight === 'prev' ? dateKey(addDays(currentDate, -1)) : currentKey;
+}
+
+// Resolves the true start/end of an entry for editing, even when the block
+// on screen is only half of an overnight-linked pair (whose own start/end
+// is just the '00:00'/'24:00' day-boundary stub).
+function getBlockLogicalRange(block) {
+  if (block.crossesMidnight === 'next') {
+    const partner = loadBlocksForKey(dateKey(addDays(currentDate, 1))).find((b) => b.id === block.id);
+    return { start: block.start, end: partner ? partner.end : block.end };
+  }
+  if (block.crossesMidnight === 'prev') {
+    const partner = loadBlocksForKey(dateKey(addDays(currentDate, -1))).find((b) => b.id === block.id);
+    return { start: partner ? partner.start : block.start, end: block.end };
+  }
+  return { start: block.start, end: block.end };
+}
+
+function deleteEntry(anchorKey, id, wasLinked) {
+  saveBlocksForKey(anchorKey, loadBlocksForKey(anchorKey).filter((b) => b.id !== id));
+  if (wasLinked) {
+    const nextKey = dateKey(addDays(keyToDate(anchorKey), 1));
+    saveBlocksForKey(nextKey, loadBlocksForKey(nextKey).filter((b) => b.id !== id));
+  }
+}
+
+function createEntry(anchorKey, label, start, end) {
+  if (timeToMinutes(end) < timeToMinutes(start)) {
+    const id = generateId();
+    saveBlocksForKey(anchorKey, [
+      ...loadBlocksForKey(anchorKey),
+      { id, start, end: '24:00', label, crossesMidnight: 'next' },
+    ]);
+    const nextKey = dateKey(addDays(keyToDate(anchorKey), 1));
+    saveBlocksForKey(nextKey, [
+      ...loadBlocksForKey(nextKey),
+      { id, start: '00:00', end, label, crossesMidnight: 'prev' },
+    ]);
+  } else {
+    saveBlocksForKey(anchorKey, [...loadBlocksForKey(anchorKey), { id: generateId(), start, end, label }]);
+  }
+}
+
+let editingIndex = null;
+let deleteArmed = false;
+let deleteCountdown = 0;
+let deleteCountdownInterval = null;
+
+function resetDeleteArm() {
+  deleteArmed = false;
+  clearInterval(deleteCountdownInterval);
+  deleteCountdownInterval = null;
+  document.getElementById('edit-delete-label').textContent = 'Delete';
+  document.getElementById('edit-delete-btn').classList.remove('armed');
+}
+
+function openEditDialog(index) {
+  editingIndex = index;
+  const block = currentBlocks[index];
+  const range = getBlockLogicalRange(block);
+  document.getElementById('edit-label-input').value = block.label;
+  document.getElementById('edit-start-input').value = range.start;
+  document.getElementById('edit-end-input').value = range.end;
+  resetDeleteArm();
+  document.getElementById('edit-dialog').showModal();
 }
 
 function handleBlockClick(index) {
-  const block = currentBlocks[index];
-  if (!confirm(`Delete "${block.label}" (${blockTimeRangeLabel(block)})?`)) return;
+  openEditDialog(index);
+}
 
-  currentBlocks.splice(index, 1);
-  if (block.crossesMidnight === 'next') {
-    removeLinkedBlock(dateKey(addDays(currentDate, 1)), block.id);
-  } else if (block.crossesMidnight === 'prev') {
-    removeLinkedBlock(dateKey(addDays(currentDate, -1)), block.id);
+function handleEditDeleteClick() {
+  if (!deleteArmed) {
+    deleteArmed = true;
+    deleteCountdown = 3;
+    document.getElementById('edit-delete-label').textContent = `Delete? (${deleteCountdown})`;
+    document.getElementById('edit-delete-btn').classList.add('armed');
+    deleteCountdownInterval = setInterval(() => {
+      deleteCountdown -= 1;
+      if (deleteCountdown <= 0) {
+        resetDeleteArm();
+        return;
+      }
+      document.getElementById('edit-delete-label').textContent = `Delete? (${deleteCountdown})`;
+    }, 1000);
+    return;
   }
-  persistAndRender();
+
+  const block = currentBlocks[editingIndex];
+  deleteEntry(anchorKeyForBlock(block), block.id, !!block.crossesMidnight);
+  editingIndex = null;
+  document.getElementById('edit-dialog').close();
+  renderTimeline(currentBlocks);
+}
+
+function handleEditSubmit(e) {
+  e.preventDefault();
+  const label = document.getElementById('edit-label-input').value.trim();
+  const start = document.getElementById('edit-start-input').value;
+  const end = document.getElementById('edit-end-input').value;
+  if (!label || !start || !end) return;
+  if (timeToMinutes(end) === timeToMinutes(start)) {
+    alert('Start and end time cannot be the same.');
+    return;
+  }
+
+  if (timeToMinutes(end) < timeToMinutes(start)) {
+    const overnightMinutes = (24 * 60 - timeToMinutes(start)) + timeToMinutes(end);
+    const proceed = confirm(
+      `This spans midnight: ${start} today → ${end} tomorrow (${formatDuration(overnightMinutes)}). Continue?`
+    );
+    if (!proceed) return;
+  }
+
+  const block = currentBlocks[editingIndex];
+  // Delete from wherever the old entry actually lived, but always create the
+  // edited version anchored to the day currently on screen — same rule Add
+  // uses. Otherwise editing from the "tomorrow" half of a linked entry back
+  // into a same-day entry would silently place it on yesterday instead.
+  deleteEntry(anchorKeyForBlock(block), block.id, !!block.crossesMidnight);
+  createEntry(currentKey, label, start, end);
+
+  editingIndex = null;
+  document.getElementById('edit-dialog').close();
+  renderTimeline(currentBlocks);
 }
 
 function handleAddSubmit(e) {
@@ -199,21 +318,10 @@ function handleAddSubmit(e) {
       `This spans midnight: ${start} today → ${end} tomorrow (${formatDuration(overnightMinutes)}). Continue?`
     );
     if (!proceed) return;
-
-    const id = generateId();
-    currentBlocks.push({ id, start, end: '24:00', label, crossesMidnight: 'next' });
-
-    const nextKey = dateKey(addDays(currentDate, 1));
-    const nextBlocks = loadDay(nextKey);
-    nextBlocks.push({ id, start: '00:00', end, label, crossesMidnight: 'prev' });
-    nextBlocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
-    saveDay(nextKey, nextBlocks);
-  } else {
-    currentBlocks.push({ id: generateId(), start, end, label });
   }
 
-  currentBlocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
-  persistAndRender();
+  createEntry(currentKey, label, start, end);
+  renderTimeline(currentBlocks);
 
   labelInput.value = '';
   startInput.value = nowTimeString();
@@ -261,4 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('add-form').addEventListener('submit', handleAddSubmit);
+
+  const editDialog = document.getElementById('edit-dialog');
+  document.getElementById('edit-form').addEventListener('submit', handleEditSubmit);
+  document.getElementById('edit-delete-btn').addEventListener('click', handleEditDeleteClick);
+  document.getElementById('edit-cancel-btn').addEventListener('click', () => editDialog.close());
+  editDialog.addEventListener('close', resetDeleteArm);
+  // Click on the backdrop (target is the <dialog> itself, not a descendant) closes it.
+  editDialog.addEventListener('click', (e) => {
+    if (e.target === editDialog) editDialog.close();
+  });
 });

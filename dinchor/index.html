@@ -42,6 +42,33 @@
     <p id="empty-hint">No entries yet today. Add your first one above.</p>
     <div id="timeline"></div>
   </main>
+  <dialog id="edit-dialog">
+    <form id="edit-form">
+      <h2>Edit entry</h2>
+      <input type="text" id="edit-label-input" required />
+      <div class="edit-time-row">
+        <input type="time" id="edit-start-input" required />
+        <span>to</span>
+        <input type="time" id="edit-end-input" required />
+      </div>
+      <div class="edit-actions">
+        <button type="button" id="edit-delete-btn" class="danger-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+          </svg>
+          <span id="edit-delete-label">Delete</span>
+        </button>
+        <div class="edit-actions-right">
+          <button type="button" id="edit-cancel-btn">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
   <script src="storage.js"></script>
   <script src="app.js"></script>
 </body>

@@ -198,3 +198,107 @@ main {
   filter: brightness(0.95);
   z-index: 1;
 }
+
+#edit-dialog {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  width: min(22rem, calc(100vw - 2.5rem));
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+  color: #222;
+}
+
+#edit-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+#edit-dialog h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+#edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#edit-form input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+.edit-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-time-row input {
+  flex: 1;
+}
+
+.edit-time-row span {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.edit-actions-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#edit-form button {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  color: #444;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+#edit-form button[type='submit'] {
+  background: #4a7c63;
+  color: white;
+  border-color: #4a7c63;
+}
+
+#edit-form button[type='submit']:hover {
+  background: #3d6852;
+}
+
+#edit-form .danger-btn {
+  display: inline-flex;
+  min-width: 8.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: #a33;
+  border-color: #e2b3b3;
+}
+
+#edit-form .danger-btn:hover {
+  background: #fdf1f1;
+}
+
+#edit-form .danger-btn.armed {
+  background: #c0392b;
+  color: white;
+  border-color: #c0392b;
+}
