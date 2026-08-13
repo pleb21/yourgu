@@ -24,6 +24,11 @@
     </div>
   </header>
   <main>
+    <div id="data-actions">
+      <button type="button" id="export-btn">Export</button>
+      <button type="button" id="import-btn">Import</button>
+      <input type="file" id="import-file-input" accept="application/json" hidden />
+    </div>
     <form id="add-form">
       <input type="text" id="label-input" placeholder="What are you doing?" required />
       <input type="time" id="start-input" required />

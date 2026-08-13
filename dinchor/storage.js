@@ -29,10 +29,29 @@ function saveDay(key, blocks) {
   localStorage.setItem(storageKeyFor(key), JSON.stringify(blocks));
 }
 
-function exportJSON(blocks) {
-  return JSON.stringify(blocks, null, 2);
+function allDayKeys() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('dinchor.day.')) keys.push(k.slice('dinchor.day.'.length));
+  }
+  return keys.sort();
 }
 
-function importJSON(json) {
-  return JSON.parse(json);
+function exportAllJSON() {
+  const days = {};
+  allDayKeys().forEach((key) => {
+    days[key] = loadDay(key);
+  });
+  return JSON.stringify({ app: 'dinchor', version: 1, exportedAt: new Date().toISOString(), days }, null, 2);
+}
+
+// Returns the { [dayKey]: blocks[] } payload from an export file. Throws if
+// the file doesn't look like a dinchor export — callers should catch.
+function importAllJSON(json) {
+  const parsed = JSON.parse(json);
+  if (!parsed || typeof parsed !== 'object' || typeof parsed.days !== 'object' || parsed.days === null) {
+    throw new Error('Not a dinchor export file.');
+  }
+  return parsed.days;
 }

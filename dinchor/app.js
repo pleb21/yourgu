@@ -210,6 +210,97 @@ function createEntry(anchorKey, label, start, end) {
   }
 }
 
+// Merges an imported { [dayKey]: blocks[] } payload into this device's data.
+// Additive only — entries are matched by id, so re-importing the same file
+// twice is a no-op. No conflict UI yet: if an imported entry overlaps an
+// existing one in time, both are kept and the existing side-by-side overlap
+// layout (layoutOverlaps) surfaces that visually so the user can sort it out
+// by hand. Real conflict detection/resolution is a deferred follow-up.
+function mergeImportedDays(days) {
+  let addedCount = 0;
+  Object.keys(days).forEach((key) => {
+    const incoming = days[key];
+    if (!Array.isArray(incoming)) return;
+    const existing = loadBlocksForKey(key);
+    const existingIds = new Set(existing.map((b) => b.id));
+    const toAdd = incoming.filter(
+      (b) => b && b.id && b.start && b.end && b.label && !existingIds.has(b.id)
+    );
+    if (toAdd.length === 0) return;
+    saveBlocksForKey(key, [...existing, ...toAdd]);
+    addedCount += toAdd.length;
+  });
+  return addedCount;
+}
+
+// Shares the export file via the OS share sheet when available (iOS/Android),
+// otherwise falls back to a plain download — same content, two different
+// File objects, deliberately typed differently for each path (see below).
+//
+// The Web Share API only runs in a secure context (https:, or http(s)://
+// localhost on the SAME device) — visiting a laptop's local dev server from
+// a phone over the LAN is neither, so navigator.share is plain `undefined`
+// there and this always falls through to the download branch. That's a
+// testing-environment limit, not a bug; the share path needs the real
+// https:// deploy (or desktop Safari on localhost) to actually exercise.
+async function handleExportClick() {
+  const json = exportAllJSON();
+  const filename = `dinchor-export-${dateKey(new Date())}.json`;
+
+  // 'text/plain' for the share attempt: iOS Safari's share sheet only offers
+  // files whose type is on its own (undocumented, narrower) whitelist, and
+  // 'application/json' isn't reliably on it.
+  const shareFile = new File([json], filename, { type: 'text/plain' });
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+    try {
+      await navigator.share({ files: [shareFile], title: 'dinchor export' });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // user dismissed the share sheet
+      // otherwise fall through to the download fallback below
+    }
+  }
+
+  // 'application/json' for the download: matching the .json extension here
+  // matters — a mismatched type (e.g. 'text/plain' on a .json file) makes
+  // Safari "correct" the saved filename to dinchor-export-*.json.txt.
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function handleImportFileChange(e) {
+  const file = e.target.files[0];
+  e.target.value = ''; // allow re-selecting the same file next time
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let days;
+    try {
+      days = importAllJSON(reader.result);
+    } catch (err) {
+      alert('Could not read that file — is it a dinchor export?');
+      return;
+    }
+    const addedCount = mergeImportedDays(days);
+    loadCurrentDay();
+    alert(
+      addedCount > 0
+        ? `Imported ${addedCount} new ${addedCount === 1 ? 'entry' : 'entries'}.`
+        : 'Nothing new to import — already up to date.'
+    );
+  };
+  reader.onerror = () => alert('Could not read that file.');
+  reader.readAsText(file);
+}
+
 let editingIndex = null;
 let deleteArmed = false;
 let deleteCountdown = 0;
@@ -369,6 +460,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('add-form').addEventListener('submit', handleAddSubmit);
+
+  document.getElementById('export-btn').addEventListener('click', handleExportClick);
+  document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('import-file-input').click();
+  });
+  document.getElementById('import-file-input').addEventListener('change', handleImportFileChange);
 
   const editDialog = document.getElementById('edit-dialog');
   document.getElementById('edit-form').addEventListener('submit', handleEditSubmit);
