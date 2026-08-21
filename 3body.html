@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three-Body Universe Map</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f4f0;
+    --text: #1a1a18;
+    --text2: #6b6a64;
+    --text3: #9e9d97;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --card-bg: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --bg2: #242420;
+      --text: #e8e6de;
+      --text2: #9e9d97;
+      --text3: #6b6a64;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --card-bg: #242420;
+    }
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  header {
+    padding: 20px 24px 12px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  #controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    border-bottom: 0.5px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  #controls label { font-size: 12px; color: var(--text2); }
+
+  button {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--border); }
+  button:active { transform: scale(0.97); }
+
+  input[type=range] {
+    width: 120px;
+    accent-color: #4A9EE0;
+  }
+
+  #canvas-wrap {
+    width: 100%;
+    overflow: hidden;
+    cursor: grab;
+    position: relative;
+    background: var(--bg);
+  }
+  #canvas-wrap:active { cursor: grabbing; }
+
+  #main-canvas { display: block; }
+
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--card-bg);
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    max-width: 280px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+    line-height: 1.6;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip .name { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+  .tooltip .dist { color: var(--text2); font-size: 12px; margin-bottom: 8px; }
+  .tooltip .desc { font-size: 12px; color: var(--text); }
+  .tooltip .tb {
+    font-size: 11px; color: #BA7517;
+    margin-top: 8px;
+    border-top: 0.5px solid var(--border);
+    padding-top: 8px;
+    line-height: 1.5;
+  }
+  @media (prefers-color-scheme: dark) {
+    .tooltip .tb { color: #EF9F27; }
+  }
+
+  #legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 10px 24px;
+    border-top: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; }
+  .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  #scale-hint {
+    text-align: center;
+    padding: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    border-top: 0.5px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Three-Body Universe Map</h1>
+  <p>Logarithmic scale — each visual step is 10× farther. Hover/click any object for details.</p>
+</header>
+
+<div id="controls">
+  <label>Zoom</label>
+  <button id="zoom-out">−</button>
+  <input type="range" id="zoom-slider" min="1" max="12" step="0.1" value="1">
+  <button id="zoom-in">+</button>
+  <button id="reset-btn">Reset view</button>
+  <span id="zoom-label" style="font-size:12px;color:var(--text2);min-width:36px">1×</span>
+  <span style="font-size:11px;color:var(--text3);margin-left:8px">Drag to pan • Scroll to zoom</span>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="main-canvas"></canvas>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div id="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#F2A623"></div> Star</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4A9EE0"></div> Planet</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#9E7EC8"></div> Dwarf planet</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#5DC8A8"></div> Region / boundary</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div> Lagrange point</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#EF9F27; outline: 1.5px dashed #EF9F27; outline-offset:2px;"></div> Three-Body event</div>
+</div>
+<div id="scale-hint">Logarithmic scale · Each labelled grid line = 10× distance · True scale: if Sun is 1mm, Trisolaris is 28 metres away</div>
+
+<script>
+const canvas = document.getElementById('main-canvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+const wrap = document.getElementById('canvas-wrap');
+const zoomSlider = document.getElementById('zoom-slider');
+const zoomLabel = document.getElementById('zoom-label');
+
+// --- State ---
+let zoom = 1;
+let panX = 0; // offset in canvas pixels
+let isDragging = false;
+let dragStartX = 0;
+let dragStartPan = 0;
+let hoveredObj = null;
+
+// --- Layout constants (at zoom=1) ---
+const BASE_H = 440;
+const PAD_LEFT = 70;
+const PAD_RIGHT = 30;
+const TRACK_Y = 220;
+const MIN_LOG = -3;
+const MAX_LOG = 5.35;
+
+function isDarkMode() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function getColors() {
+  const dark = isDarkMode();
+  return {
+    axis:      dark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+    tick:      dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)',
+    label:     dark ? 'rgba(255,255,255,0.42)' : 'rgba(0,0,0,0.42)',
+    text:      dark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.85)',
+    textSec:   dark ? 'rgba(255,255,255,0.42)' : 'rgba(0,0,0,0.42)',
+    hoverRing: dark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)',
+    regionFill:dark ? '18' : '18',
+  };
+}
+
+// Full canvas width (zoomed)
+function fullW() { return Math.max(wrap.clientWidth, 320) * zoom; }
+function axisW() { return fullW() - PAD_LEFT - PAD_RIGHT; }
+
+function logToX(au) {
+  const l = Math.log10(Math.max(au, 0.0001));
+  return PAD_LEFT + ((l - MIN_LOG) / (MAX_LOG - MIN_LOG)) * axisW();
+}
+
+// Screen X to canvas X (accounting for pan)
+function screenToCanvasX(sx) { return sx - panX; }
+
+// --- Objects ---
+const objects = [
+  { id:'sun',        name:'Sun',                  au:0.001,   type:'star',     radius:20, color:'#F2A623',
+    dist:'0 AU (centre)',
+    desc:'Our star. 1.4 million km across, containing 99.86% of the solar system\'s mass. Surface temperature ~5,500°C.',
+    tb: null },
+
+  { id:'mercury',    name:'Mercury',              au:0.39,    type:'planet',   radius:5,  color:'#B4B2A9',
+    dist:'0.39 AU · 58 million km',
+    desc:'Closest planet to the Sun. No atmosphere, extreme swings from −180°C to 430°C. A year is just 88 Earth days.',
+    tb: null },
+
+  { id:'venus',      name:'Venus',                au:0.72,    type:'planet',   radius:7,  color:'#EFC97A',
+    dist:'0.72 AU · 108 million km',
+    desc:'Hottest planet at 465°C despite not being the closest. Dense CO₂ atmosphere creates runaway greenhouse effect. Rotates backwards.',
+    tb: null },
+
+  { id:'earth',      name:'Earth',                au:1.0,     type:'planet',   radius:9,  color:'#4A9EE0',
+    dist:'1 AU = 150 million km (definition)',
+    desc:'Home. The AU is defined by Earth\'s orbital distance. Light from the Sun takes ~8 minutes 20 seconds to reach us.',
+    tb:'The Three-Body story begins and ends here. Ye Wenjie sends the signal. All the Wallfacers, Swordholders, and billions of humans are defending this single pale dot. When Sophon says "Go to Australia, you bugs" — this is where those bugs live.' },
+
+  { id:'moon',       name:'Moon',                 au:1.0026,  type:'moon',     radius:4,  color:'#888780',
+    dist:'384,000 km from Earth (0.003 AU)',
+    desc:'Earth\'s only natural satellite. So close that Apollo missions took just 3 days. The only celestial body beyond Earth that humans have visited.',
+    tb: null },
+
+  { id:'l4',         name:'L4/L5 Lagrange points',au:1.0,    type:'lagrange', radius:5,  color:'#E24B4A',
+    dist:'1 AU, 60° ahead/behind Earth in its orbit',
+    desc:'Gravitational balance points where Sun and Earth gravity cancel out. Objects here are naturally stable — Jupiter\'s Trojan asteroids sit at its L4/L5.',
+    tb:'The Sun-Earth L4 and L5 points are used in the trilogy for positioning. Gravitational sweet spots matter when you are trying to station a fleet or a listening post without burning propellant.' },
+
+  { id:'mars',       name:'Mars',                 au:1.52,    type:'planet',   radius:6,  color:'#D85A30',
+    dist:'1.52 AU · 228 million km',
+    desc:'The Red Planet. Largest volcano in the solar system — Olympus Mons at 21km. Thin CO₂ atmosphere. A Martian day is 24h 37min.',
+    tb: null },
+
+  { id:'asteroid',   name:'Asteroid Belt',         au:2.7,    type:'region',   radius:5,  color:'#9E7EC8',
+    dist:'2.2 – 3.2 AU',
+    desc:'Millions of rocky bodies between Mars and Jupiter. Despite countless asteroid films, total mass is less than the Moon. Ceres is the largest body.',
+    tb: null },
+
+  { id:'jupiter',    name:'Jupiter',               au:5.2,    type:'planet',   radius:14, color:'#C8956A',
+    dist:'5.2 AU · 778 million km',
+    desc:'Largest planet — 1,300 Earths would fit inside. The Great Red Spot is a storm larger than Earth that has raged for centuries. 95 known moons.',
+    tb: null },
+
+  { id:'saturn',     name:'Saturn',                au:9.5,    type:'planet',   radius:11, color:'#D4B483', hasRings:true,
+    dist:'9.5 AU · 1.4 billion km',
+    desc:'Ring system stretches 282,000 km but is only ~100m thick. Least dense planet — it would float on water. 146 known moons including Titan with a thick atmosphere.',
+    tb: null },
+
+  { id:'uranus',     name:'Uranus',                au:19.2,   type:'planet',   radius:8,  color:'#7EC8D4',
+    dist:'19.2 AU · 2.9 billion km',
+    desc:'Rotates on its side (98° axial tilt) — possibly knocked over by a giant impact. Coldest atmosphere at −224°C. Composed of water, methane and ammonia ice.',
+    tb: null },
+
+  { id:'neptune',    name:'Neptune',               au:30.0,   type:'planet',   radius:8,  color:'#3B6ED4',
+    dist:'30 AU · 4.5 billion km',
+    desc:'Farthest planet. Winds up to 2,100 km/h — fastest in the solar system. Takes 165 years to orbit. Voyager 2 is the only spacecraft to have visited.',
+    tb:'The Doomsday Battle takes place in this region. Humanity sends 2,000 warships beyond Neptune. The Trisolaran droplet probe annihilates almost the entire fleet in minutes — an object of perfect matter, mirror smooth, impossible to damage.' },
+
+  { id:'kuiper',     name:'Kuiper Belt',            au:42,    type:'region',   radius:5,  color:'#5DC8A8',
+    dist:'30 – 50 AU',
+    desc:'Ring of icy bodies beyond Neptune. Source of short-period comets. Pluto, Eris, Makemake, and Quaoar live here. New Horizons reached Pluto in 2015 after 9.5 years of travel.',
+    tb: null },
+
+  { id:'pluto',      name:'Pluto',                 au:39.5,   type:'dwarf',    radius:5,  color:'#9E7EC8',
+    dist:'39.5 AU average (248-year orbit)',
+    desc:'Largest known Kuiper Belt Object. Reclassified as dwarf planet in 2006. Has 5 moons — Charon is so large they orbit each other as a binary system.',
+    tb: null },
+
+  { id:'heliopause', name:'Heliopause',             au:120,   type:'boundary', radius:5,  color:'#5DC8A8',
+    dist:'~120 AU',
+    desc:'Where the solar wind stops and interstellar space truly begins. Voyager 1 crossed this boundary in 2012 after 35 years of travel — the only human-made object in interstellar space.',
+    tb:'Beyond the heliopause is true interstellar space — the void through which the Trisolaran fleet travels for 4.37 light-years. At their speed (~1-2% of light), the journey takes centuries. Voyager 1, the fastest thing humans have ever built, would take 74,000 years to reach Alpha Centauri.' },
+
+  { id:'oort_inner', name:'Oort Cloud (inner)',    au:3000,   type:'region',   radius:5,  color:'#5DC8A8',
+    dist:'2,000 – 20,000 AU',
+    desc:'Inner Oort Cloud — a disc-shaped region of icy objects. Source of Halley-type comets with periods of decades to centuries. No spacecraft has come close — entirely theoretical, inferred from comet orbits.',
+    tb: null },
+
+  { id:'oort_outer', name:'Oort Cloud (outer)',    au:60000,  type:'region',   radius:5,  color:'#5DC8A8',
+    dist:'20,000 – 100,000 AU · up to 1.6 light-years',
+    desc:'A vast spherical shell of icy bodies — trillions of them. Source of long-period comets that take thousands of years to orbit. Extends nearly a quarter of the way to the nearest star.',
+    tb:'The outer Oort Cloud marks the true gravitational edge of our solar system. Beyond this lies 4.37 light-years of pure, lightless void before reaching Alpha Centauri — the real star system where Trisolaris orbits its three suns.' },
+
+  { id:'trisolaris', name:'Alpha Centauri / Trisolaris', au:268000, type:'tb_event', radius:8, color:'#EF9F27',
+    dist:'4.37 light-years · 268,000 AU',
+    desc:'Alpha Centauri is a real triple-star system — the nearest to our Sun. Alpha Centauri A and B are Sun-like stars; Proxima Centauri is a red dwarf (the actual closest star at 4.24 ly).',
+    tb:'In the trilogy, Trisolaris orbits within the Alpha Centauri system, subject to the chaotic gravitational pull of three suns. Ye Wenjie\'s radio signal reached here in ~4 years. The Trisolaran reply took another ~4 years. The fleet they sent will take centuries.' },
+
+  { id:'sophon',     name:'Sophon monitoring zone', au:1.15,  type:'tb_event', radius:6,  color:'#EF9F27',
+    dist:'~1 AU (inner solar system)',
+    desc:'Sophons are proton-sized supercomputers, created by unfolding an 11-dimensional proton and etching circuitry onto it, then refolding. Effectively invisible, effectively omnipresent.',
+    tb:'"Go to Australia, you bugs." Sophon has monitored humanity since the 11th century. It/she can read any screen, attend any meeting, and has blocked particle physics breakthroughs for decades by interfering with accelerator results. The statement to go to Australia was directed at the survivors of the Doomsday Battle — humanity reduced from a civilization to a refugee population.' },
+
+  { id:'droplet',    name:'Droplet impact zone',   au:42,     type:'tb_event', radius:6,  color:'#EF9F27',
+    dist:'~30–50 AU (Neptune / Kuiper Belt region)',
+    desc:'A Trisolaran probe shaped like a perfect teardrop, made of a material with a mirror-smooth surface at the atomic level. Reflects all radiation. Impossible to damage. Weighs millions of tons.',
+    tb:'The Doomsday Battle: humanity assembled 2,000 warships — every weapon ever built — to intercept the droplet. It flew through the entire fleet at 1% light speed, destroying ship after ship. The battle lasted minutes. Then it targeted the broadcast stations that maintained the Dark Forest deterrence. When those went silent, the deterrence collapsed entirely.' },
+
+  { id:'dust1',      name:'First Dark Forest strike', au:0.5, type:'tb_event', radius:6,  color:'#E24B4A',
+    dist:'Inner solar system (~0.5 AU)',
+    desc:'A two-dimensional foil deployed by an unknown civilization — not Trisolaris. It expands at near-light speed, converting 3D matter into a flat 2D plane as it passes through.',
+    tb:'This is the key revelation: the Dark Forest is not just Trisolaris vs. Earth. The universe is full of civilizations hiding and striking. An unknown third party, having monitored the Trisolaris-Earth communication, decides the entire solar system is a threat — and sends a 2D strike. This is what cosmic-level warfare actually looks like: silent, instant, total.' },
+];
+
+// --- Resize canvas ---
+function resizeCanvas() {
+  const cw = wrap.clientWidth;
+  canvas.width = Math.max(cw * zoom, cw);
+  canvas.height = BASE_H;
+  canvas.style.width = Math.max(cw * zoom, cw) + 'px';
+  canvas.style.height = BASE_H + 'px';
+  wrap.style.height = BASE_H + 'px';
+}
+
+// --- Drawing ---
+function draw() {
+  const C = getColors();
+  const dark = isDarkMode();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const aw = axisW();
+
+  // Grid lines + tick labels
+  const ticks = [
+    { log: -3, label: '0.001 AU' },
+    { log: -2, label: '0.01 AU' },
+    { log: -1, label: '0.1 AU' },
+    { log:  0, label: '1 AU\n(Earth)' },
+    { log:  1, label: '10 AU' },
+    { log:  2, label: '100 AU' },
+    { log:  3, label: '1,000 AU' },
+    { log:  4, label: '10,000 AU' },
+    { log:  5, label: '100,000 AU' },
+  ];
+
+  ticks.forEach(t => {
+    const x = PAD_LEFT + panX + ((t.log - MIN_LOG) / (MAX_LOG - MIN_LOG)) * aw;
+    if (x < 0 || x > canvas.width + 60) return;
+    ctx.beginPath();
+    ctx.strokeStyle = C.tick;
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([3, 5]);
+    ctx.moveTo(x, 65);
+    ctx.lineTo(x, TRACK_Y - 14);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // tick mark on axis
+    ctx.beginPath();
+    ctx.strokeStyle = C.tick;
+    ctx.lineWidth = 1;
+    ctx.moveTo(x, TRACK_Y - 6);
+    ctx.lineTo(x, TRACK_Y + 6);
+    ctx.stroke();
+    ctx.fillStyle = C.label;
+    ctx.font = `10px -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    const lines = t.label.split('\n');
+    lines.forEach((ln, i) => ctx.fillText(ln, x, 56 + i * 13));
+  });
+
+  // Main axis line
+  ctx.beginPath();
+  ctx.strokeStyle = C.axis;
+  ctx.lineWidth = 1.5;
+  ctx.moveTo(0, TRACK_Y);
+  ctx.lineTo(canvas.width, TRACK_Y);
+  ctx.stroke();
+
+  // Region bands
+  const regions = [
+    { id:'asteroid',   x1: logToX(2.2) + panX,   x2: logToX(3.2) + panX,    color:'#9E7EC8', label:'Asteroid Belt' },
+    { id:'kuiper',     x1: logToX(30) + panX,     x2: logToX(50) + panX,     color:'#5DC8A8', label:'Kuiper Belt' },
+    { id:'heliopause', x1: logToX(100) + panX,    x2: logToX(140) + panX,    color:'#5DC8A8', label:'Heliopause' },
+    { id:'oort_inner', x1: logToX(2000) + panX,   x2: logToX(20000) + panX,  color:'#5DC8A8', label:'Oort Inner' },
+    { id:'oort_outer', x1: logToX(20000) + panX,  x2: logToX(100000) + panX, color:'#5DC8A8', label:'Oort Outer' },
+  ];
+
+  regions.forEach(r => {
+    const rx1 = Math.max(0, r.x1);
+    const rx2 = Math.min(canvas.width, r.x2);
+    if (rx2 < 0 || rx1 > canvas.width) return;
+    ctx.fillStyle = r.color + '1a';
+    ctx.fillRect(rx1, TRACK_Y - 50, rx2 - rx1, 100);
+    ctx.strokeStyle = r.color + '44';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(rx1, TRACK_Y - 50, rx2 - rx1, 100);
+    ctx.fillStyle = r.color + 'cc';
+    ctx.font = `500 10px -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    const midX = (rx1 + rx2) / 2;
+    ctx.fillText(r.label, Math.max(rx1 + 4, Math.min(rx2 - 4, midX)), TRACK_Y + 68);
+  });
+
+  // Objects
+  objects.forEach(obj => {
+    if (obj.type === 'region' || obj.type === 'boundary') return;
+    const x = logToX(obj.au) + panX;
+    if (x < -60 || x > canvas.width + 60) return;
+    const y = TRACK_Y;
+    const r = obj.radius;
+    const isHovered = hoveredObj && hoveredObj.id === obj.id;
+    const isTB = obj.type === 'tb_event';
+
+    // Hover ring
+    if (isHovered) {
+      ctx.beginPath();
+      ctx.arc(x, y, r + 7, 0, Math.PI * 2);
+      ctx.strokeStyle = C.hoverRing;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // TB dashed ring
+    if (isTB) {
+      ctx.beginPath();
+      ctx.arc(x, y, r + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = obj.id === 'dust1' ? '#E24B4A' : '#EF9F27';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Sun glow
+    if (obj.id === 'sun') {
+      const g = ctx.createRadialGradient(x, y, r * 0.4, x, y, r * 3);
+      g.addColorStop(0, '#FAC77566');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Saturn rings
+    if (obj.id === 'saturn') {
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 2.4, r * 0.5, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#D4B483bb';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    // Main dot
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = obj.color;
+    ctx.fill();
+
+    // Label
+    const labelAboveIds = ['moon','l4','sophon','droplet','trisolaris'];
+    const above = labelAboveIds.includes(obj.id);
+    const labelY = above ? y - r - 24 : y + r + 18;
+
+    if (above) {
+      ctx.beginPath();
+      ctx.moveTo(x, y - r - 2);
+      ctx.lineTo(x, labelY + 5);
+      ctx.strokeStyle = obj.color + '55';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = isTB
+      ? (obj.id === 'dust1' ? '#E24B4A' : '#EF9F27')
+      : (obj.type === 'lagrange' ? '#E24B4A' : C.text);
+    ctx.font = `${isTB || isHovered ? '500' : '400'} 11px -apple-system, sans-serif`;
+    ctx.textAlign = 'center';
+    const shortName = obj.name.length > 16 ? obj.name.split(' ')[0] : obj.name;
+    ctx.fillText(shortName, x, labelY);
+  });
+
+  // "You are here" annotation at Earth
+  const earthX = logToX(1.0) + panX;
+  if (earthX > 0 && earthX < canvas.width) {
+    ctx.fillStyle = '#4A9EE0';
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('← you are here', earthX + 14, TRACK_Y - 18);
+  }
+}
+
+// --- Zoom & pan ---
+function setZoom(z, pivotScreenX) {
+  z = Math.min(12, Math.max(1, z));
+  if (z === zoom) return;
+  const pivotX = pivotScreenX !== undefined ? pivotScreenX : wrap.clientWidth / 2;
+  const canvasPivot = pivotX - panX;
+  const ratio = z / zoom;
+  zoom = z;
+  panX = pivotX - canvasPivot * ratio;
+  clampPan();
+  zoomSlider.value = zoom;
+  zoomLabel.textContent = zoom.toFixed(1) + '×';
+  resizeCanvas();
+  draw();
+}
+
+function clampPan() {
+  const maxPan = 0;
+  const minPan = -(axisW() - (wrap.clientWidth - PAD_LEFT - PAD_RIGHT));
+  panX = Math.min(maxPan, Math.max(minPan, panX));
+}
+
+// Zoom controls
+zoomSlider.addEventListener('input', () => setZoom(parseFloat(zoomSlider.value)));
+document.getElementById('zoom-in').addEventListener('click', () => setZoom(zoom * 1.5));
+document.getElementById('zoom-out').addEventListener('click', () => setZoom(zoom / 1.5));
+document.getElementById('reset-btn').addEventListener('click', () => { zoom = 1; panX = 0; setZoom(1); });
+
+// Mouse wheel zoom
+wrap.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = wrap.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const delta = e.deltaY < 0 ? 1.15 : 0.87;
+  setZoom(zoom * delta, mx);
+}, { passive: false });
+
+// Drag pan
+wrap.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  dragStartX = e.clientX;
+  dragStartPan = panX;
+  wrap.style.cursor = 'grabbing';
+});
+window.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    panX = dragStartPan + (e.clientX - dragStartX);
+    clampPan();
+    draw();
+  }
+  // Tooltip
+  const rect = wrap.getBoundingClientRect();
+  const mx = e.clientX - rect.left - panX;
+  const my = e.clientY - rect.top;
+  updateHover(mx, my, e.clientX, e.clientY);
+});
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  wrap.style.cursor = 'grab';
+});
+
+// Touch drag
+let touchStartX = 0, touchStartPan = 0;
+wrap.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartPan = panX;
+  }
+}, { passive: true });
+wrap.addEventListener('touchmove', (e) => {
+  if (e.touches.length === 1) {
+    e.preventDefault();
+    panX = touchStartPan + (e.touches[0].clientX - touchStartX);
+    clampPan();
+    draw();
+  }
+}, { passive: false });
+wrap.addEventListener('touchend', (e) => {
+  // tap = show tooltip
+  const rect = wrap.getBoundingClientRect();
+  if (e.changedTouches.length === 1) {
+    const t = e.changedTouches[0];
+    const mx = t.clientX - rect.left - panX;
+    const my = t.clientY - rect.top;
+    const obj = findObject(mx, my);
+    if (obj) showTooltip(obj, t.clientX, t.clientY);
+    else tooltip.classList.remove('show');
+  }
+});
+
+// Hover / tooltip
+function findObject(mx, my) {
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const obj = objects[i];
+    if (obj.type === 'region' || obj.type === 'boundary') continue;
+    const ox = logToX(obj.au);
+    const oy = TRACK_Y;
+    if (Math.hypot(mx - ox, my - oy) < obj.radius + 10) return obj;
+  }
+  return null;
+}
+
+function showTooltip(obj, screenX, screenY) {
+  tooltip.innerHTML = `
+    <div class="name">${obj.name}</div>
+    <div class="dist">${obj.dist}</div>
+    <div class="desc">${obj.desc}</div>
+    ${obj.tb ? `<div class="tb">📖 Three-Body: ${obj.tb}</div>` : ''}
+  `;
+  const tw = 280, th = 180;
+  let tx = screenX + 14;
+  let ty = screenY - 60;
+  if (tx + tw > window.innerWidth - 10) tx = screenX - tw - 14;
+  if (ty < 10) ty = 10;
+  tooltip.style.left = tx + 'px';
+  tooltip.style.top = ty + 'px';
+  tooltip.classList.add('show');
+}
+
+function updateHover(mx, my, screenX, screenY) {
+  if (isDragging) { tooltip.classList.remove('show'); return; }
+  const obj = findObject(mx, my);
+  if (obj !== hoveredObj) { hoveredObj = obj; draw(); }
+  if (obj) {
+    wrap.style.cursor = 'pointer';
+    showTooltip(obj, screenX, screenY);
+  } else {
+    wrap.style.cursor = zoom > 1 ? 'grab' : 'default';
+    tooltip.classList.remove('show');
+  }
+}
+
+// Dark mode change
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+
+// Init
+resizeCanvas();
+draw();
+window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+</script>
+</body>
+</html>
