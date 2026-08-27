@@ -27,6 +27,20 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+function updateOfflineBanner() {
+  const banner = document.getElementById('offline-banner');
+  // navigator.onLine only reflects general OS connectivity, not whether this
+  // page's own server is reachable — window.__DINCHOR_OFFLINE__ is set by
+  // sw.js when it had to serve this exact load from its cache.
+  if (banner) banner.hidden = navigator.onLine && !window.__DINCHOR_OFFLINE__;
+}
+
 let currentKey;
 let currentDate;
 let currentBlocks;
@@ -210,27 +224,122 @@ function createEntry(anchorKey, label, start, end) {
   }
 }
 
-// Merges an imported { [dayKey]: blocks[] } payload into this device's data.
-// Additive only — entries are matched by id, so re-importing the same file
-// twice is a no-op. No conflict UI yet: if an imported entry overlaps an
-// existing one in time, both are kept and the existing side-by-side overlap
-// layout (layoutOverlaps) surfaces that visually so the user can sort it out
-// by hand. Real conflict detection/resolution is a deferred follow-up.
-function mergeImportedDays(days) {
-  let addedCount = 0;
+function timeRangesOverlap(aStart, aEnd, bStart, bEnd) {
+  return timeToMinutes(aStart) < timeToMinutes(bEnd) && timeToMinutes(bStart) < timeToMinutes(aEnd);
+}
+
+// Same idea as anchorKeyForBlock, but for a block on an arbitrary day (not
+// necessarily the one currently on screen) — needed because import conflicts
+// can land on any day, not just currentKey.
+function trueAnchorKeyFor(key, block) {
+  return block.crossesMidnight === 'prev' ? dateKey(addDays(keyToDate(key), -1)) : key;
+}
+
+// Splits an imported { [dayKey]: blocks[] } payload into entries that are
+// safe to add outright (no id match, no time overlap with anything existing)
+// and entries that conflict (overlap an existing entry's time on the same
+// day). Doesn't write anything — the caller decides what to do with
+// conflicts before anything is committed.
+//
+// Known limitation: an overnight entry's two halves (linked by id via
+// crossesMidnight) are evaluated independently, one per day. It's possible
+// for one half to conflict and the other not to, in which case they could
+// end up resolved differently and the pair split. Edge case, not handled.
+function buildImportPlan(days) {
+  const safeAdds = {};
+  const conflicts = [];
   Object.keys(days).forEach((key) => {
     const incoming = days[key];
     if (!Array.isArray(incoming)) return;
     const existing = loadBlocksForKey(key);
     const existingIds = new Set(existing.map((b) => b.id));
-    const toAdd = incoming.filter(
-      (b) => b && b.id && b.start && b.end && b.label && !existingIds.has(b.id)
-    );
-    if (toAdd.length === 0) return;
-    saveBlocksForKey(key, [...existing, ...toAdd]);
-    addedCount += toAdd.length;
+    incoming.forEach((b) => {
+      if (!b || !b.id || !b.start || !b.end || !b.label) return;
+      if (existingIds.has(b.id)) return; // exact re-import of the same entry, no-op
+      const overlap = existing.find((e) => timeRangesOverlap(b.start, b.end, e.start, e.end));
+      if (overlap) {
+        conflicts.push({ key, incoming: b, existing: overlap });
+      } else {
+        (safeAdds[key] = safeAdds[key] || []).push(b);
+      }
+    });
   });
+  return { safeAdds, conflicts };
+}
+
+// Commits a plan from buildImportPlan. `resolutions` is a parallel array to
+// plan.conflicts, each entry one of 'both' (default) / 'skip' / 'replace'.
+function commitImportPlan(plan, resolutions) {
+  let addedCount = 0;
+
+  Object.keys(plan.safeAdds).forEach((key) => {
+    const adds = plan.safeAdds[key];
+    saveBlocksForKey(key, [...loadBlocksForKey(key), ...adds]);
+    addedCount += adds.length;
+  });
+
+  plan.conflicts.forEach((conflict, i) => {
+    const action = resolutions[i] || 'both';
+    if (action === 'skip') return;
+    if (action === 'replace') {
+      deleteEntry(
+        trueAnchorKeyFor(conflict.key, conflict.existing),
+        conflict.existing.id,
+        !!conflict.existing.crossesMidnight
+      );
+    }
+    saveBlocksForKey(conflict.key, [...loadBlocksForKey(conflict.key), conflict.incoming]);
+    addedCount += 1;
+  });
+
   return addedCount;
+}
+
+function formatConflictWhen(key, block) {
+  const label = keyToDate(key).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return `${block.start}–${block.end}, ${label}`;
+}
+
+let pendingImportPlan = null;
+
+function openImportConflictsDialog(plan) {
+  pendingImportPlan = plan;
+  const list = document.getElementById('conflict-list');
+  list.innerHTML = '';
+  plan.conflicts.forEach((conflict, i) => {
+    const item = document.createElement('div');
+    item.className = 'conflict-item';
+    item.innerHTML = `
+      <div class="conflict-row conflict-existing">Existing: <strong>${conflict.existing.label}</strong> · ${formatConflictWhen(conflict.key, conflict.existing)}</div>
+      <div class="conflict-row conflict-incoming">Imported: <strong>${conflict.incoming.label}</strong> · ${formatConflictWhen(conflict.key, conflict.incoming)}</div>
+      <div class="conflict-choice">
+        <label><input type="radio" name="conflict-${i}" value="both" checked> Keep both</label>
+        <label><input type="radio" name="conflict-${i}" value="skip"> Skip imported</label>
+        <label><input type="radio" name="conflict-${i}" value="replace"> Replace existing</label>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  document.getElementById('import-conflicts-dialog').showModal();
+}
+
+function handleImportConflictsSubmit(e) {
+  e.preventDefault();
+  const plan = pendingImportPlan;
+  pendingImportPlan = null;
+  const resolutions = plan.conflicts.map((_, i) => {
+    const checked = document.querySelector(`input[name="conflict-${i}"]:checked`);
+    return checked ? checked.value : 'both';
+  });
+  const addedCount = commitImportPlan(plan, resolutions);
+  document.getElementById('import-conflicts-dialog').close();
+  loadCurrentDay();
+  alert(`Imported ${addedCount} new ${addedCount === 1 ? 'entry' : 'entries'}.`);
+}
+
+function handleImportConflictsCancel() {
+  pendingImportPlan = null;
+  document.getElementById('import-conflicts-dialog').close();
 }
 
 // Shares the export file via the OS share sheet when available (iOS/Android),
@@ -289,7 +398,12 @@ function handleImportFileChange(e) {
       alert('Could not read that file — is it a dinchor export?');
       return;
     }
-    const addedCount = mergeImportedDays(days);
+    const plan = buildImportPlan(days);
+    if (plan.conflicts.length > 0) {
+      openImportConflictsDialog(plan);
+      return;
+    }
+    const addedCount = commitImportPlan(plan, []);
     loadCurrentDay();
     alert(
       addedCount > 0
@@ -439,6 +553,10 @@ function handleChipClick(minutes) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  updateOfflineBanner();
+  window.addEventListener('online', updateOfflineBanner);
+  window.addEventListener('offline', updateOfflineBanner);
+
   currentDate = new Date();
   loadCurrentDay();
 
@@ -466,6 +584,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('import-file-input').click();
   });
   document.getElementById('import-file-input').addEventListener('change', handleImportFileChange);
+
+  const conflictsDialog = document.getElementById('import-conflicts-dialog');
+  document.getElementById('import-conflicts-form').addEventListener('submit', handleImportConflictsSubmit);
+  document.getElementById('conflict-cancel-btn').addEventListener('click', handleImportConflictsCancel);
+  conflictsDialog.addEventListener('click', (e) => {
+    if (e.target === conflictsDialog) handleImportConflictsCancel();
+  });
 
   const editDialog = document.getElementById('edit-dialog');
   document.getElementById('edit-form').addEventListener('submit', handleEditSubmit);

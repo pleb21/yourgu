@@ -8,12 +8,14 @@
   <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="dinchor" />
   <meta name="theme-color" content="#3d6852" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="offline-banner" role="status" hidden>Offline — showing last saved version. Changes still save on this device.</div>
   <header>
     <h1>dinchor</h1>
     <div id="date-nav">
@@ -70,6 +72,19 @@
         <div class="edit-actions-right">
           <button type="button" id="edit-cancel-btn">Cancel</button>
           <button type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="import-conflicts-dialog">
+    <form id="import-conflicts-form">
+      <h2>Import conflicts</h2>
+      <p class="conflict-intro">These imported entries overlap with ones you already have. Choose what to do with each:</p>
+      <div id="conflict-list"></div>
+      <div class="edit-actions">
+        <button type="button" id="conflict-cancel-btn">Cancel import</button>
+        <div class="edit-actions-right">
+          <button type="submit">Apply</button>
         </div>
       </div>
     </form>
