@@ -1,0 +1,666 @@
+<title>Sol System Plot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0b0f14;
+    --panel:#121922;
+    --panel-2:#0e141b;
+    --line:#23303d;
+    --line-bright:#33465a;
+    --text:#cfe3e8;
+    --text-dim:#7d93a0;
+    --accent:#4fd8c4;
+    --accent-soft:rgba(79,216,196,0.16);
+    --accent-2:#e8a94a;
+    --accent-2-soft:rgba(232,169,74,0.16);
+    --font-display:'Oxanium',ui-sans-serif,system-ui,sans-serif;
+    --font-body:'Barlow Semi Condensed',ui-sans-serif,system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(79,216,196,0.05), transparent 55%),
+      radial-gradient(ellipse at 90% 0%, rgba(232,169,74,0.04), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--accent-soft); color:var(--text); }
+
+  a{ color:var(--accent); }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:2.5rem 1.5rem 5rem;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:1.5rem;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1.1rem;
+    margin-bottom:0.4rem;
+  }
+
+  .masthead-eyebrow{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 0.5rem;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(1.9rem, 4vw, 2.6rem);
+    letter-spacing:0.01em;
+    margin:0;
+    text-wrap:balance;
+    color:#eaf6f4;
+  }
+
+  .masthead-sub{
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    color:var(--text-dim);
+    text-align:right;
+    line-height:1.6;
+  }
+  .masthead-sub .dot{ color:var(--accent-2); }
+
+  .intro{
+    max-width:62ch;
+    color:var(--text-dim);
+    font-size:1.02rem;
+    line-height:1.6;
+    margin:1.1rem 0 2.4rem;
+  }
+  .intro strong{ color:var(--text); font-weight:600; }
+
+  /* ---------- orbital plot ---------- */
+
+  .plot-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:1.1rem 1.1rem 0.6rem;
+    margin-bottom:2.6rem;
+    position:relative;
+  }
+
+  .plot-panel::before{
+    content:'ORBITAL PLOT — SOL SYSTEM, LOG-SCALE DISTANCE';
+    position:absolute;
+    top:-0.55rem;
+    left:1rem;
+    background:var(--bg);
+    padding:0 0.5rem;
+    font-family:var(--font-mono);
+    font-size:0.66rem;
+    letter-spacing:0.12em;
+    color:var(--text-dim);
+  }
+
+  #orbit-canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+
+  .plot-caption{
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    color:var(--text-dim);
+    text-align:center;
+    padding:0.4rem 0 0.7rem;
+  }
+
+  #plot-tooltip{
+    position:fixed;
+    pointer-events:none;
+    font-family:var(--font-mono);
+    font-size:0.75rem;
+    color:var(--text);
+    background:var(--panel-2);
+    border:1px solid var(--line-bright);
+    border-radius:4px;
+    padding:0.35rem 0.6rem;
+    opacity:0;
+    transition:opacity 0.1s ease;
+    z-index:10;
+    white-space:nowrap;
+  }
+  #plot-tooltip.show{ opacity:1; }
+  #plot-tooltip .tt-name{ color:var(--accent); font-weight:700; }
+
+  /* ---------- section label ---------- */
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0 0 1rem;
+  }
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  /* ---------- card grid ---------- */
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(258px, 1fr));
+    gap:1rem;
+  }
+
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1.1rem 1.15rem;
+    transition:border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+    scroll-margin-top:1.5rem;
+  }
+
+  .card::before, .card::after{
+    content:'';
+    position:absolute;
+    width:9px; height:9px;
+    border:1px solid var(--line-bright);
+    opacity:0.7;
+  }
+  .card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  .card.highlight{
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent-soft), 0 0 22px -4px var(--accent-soft);
+  }
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:0.7rem;
+  }
+
+  .card-order{
+    font-family:var(--font-mono);
+    font-size:0.68rem;
+    color:var(--text-dim);
+    letter-spacing:0.08em;
+  }
+
+  .card-name{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    color:#eaf6f4;
+    display:flex;
+    align-items:center;
+    gap:0.45rem;
+  }
+  .card-glyph{ color:var(--accent); font-weight:400; font-size:1.05em; }
+
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:0.3rem 0;
+    border-top:1px solid var(--line);
+    font-size:0.86rem;
+  }
+  .stat-row:first-of-type{ border-top:none; }
+
+  .stat-label{
+    color:var(--text-dim);
+    font-size:0.78rem;
+  }
+
+  .stat-value{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    color:var(--text);
+    text-align:right;
+  }
+  .stat-value small{ color:var(--text-dim); font-size:0.78em; margin-left:0.3em; }
+
+  .moons-block{
+    margin-top:0.75rem;
+    padding-top:0.7rem;
+    border-top:1px solid var(--line);
+  }
+
+  .moons-count{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:0.4rem;
+  }
+  .moons-count .n{
+    font-family:var(--font-mono);
+    font-weight:700;
+    color:var(--accent-2);
+    font-size:1rem;
+  }
+  .moons-count .lbl{ font-size:0.78rem; color:var(--text-dim); }
+
+  .moon-list{
+    font-size:0.85rem;
+    line-height:1.55;
+    color:var(--text);
+  }
+  .moon-list .none{ color:var(--text-dim); font-style:italic; }
+
+  .moons-fluctuate{
+    font-family:var(--font-mono);
+    font-size:0.66rem;
+    color:var(--text-dim);
+    margin-top:0.45rem;
+    line-height:1.5;
+  }
+
+  /* ---------- expanse aside ---------- */
+
+  .expanse-aside{
+    margin-top:2.6rem;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:2px solid var(--accent-2);
+    border-radius:4px;
+    padding:1.1rem 1.3rem;
+  }
+  .expanse-aside h2{
+    font-family:var(--font-display);
+    font-size:1rem;
+    font-weight:600;
+    color:var(--accent-2);
+    margin:0 0 0.5rem;
+    letter-spacing:0.01em;
+  }
+  .expanse-aside p{
+    color:var(--text-dim);
+    font-size:0.9rem;
+    line-height:1.6;
+    margin:0 0 0.6rem;
+  }
+  .expanse-aside p:last-child{ margin-bottom:0; }
+  .expanse-aside strong{ color:var(--text); font-weight:600; }
+
+  /* ---------- footer ---------- */
+
+  footer{
+    margin-top:3rem;
+    padding-top:1.2rem;
+    border-top:1px solid var(--line);
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    color:var(--text-dim);
+    line-height:1.7;
+  }
+
+  .site-nav{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0.4rem;
+    font-family:var(--font-mono);
+    font-size:0.74rem;
+    letter-spacing:0.03em;
+    margin-bottom:1.2rem;
+  }
+  .site-nav a, .site-nav .current{
+    display:inline-flex;
+    align-items:baseline;
+    gap:0.35rem;
+  }
+  .site-nav a{
+    color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px dotted transparent;
+  }
+  .site-nav a:hover{ color:var(--accent); border-color:var(--line-bright); }
+  .site-nav .step{ color:var(--text-dim); font-size:0.82em; }
+  .site-nav a:hover .step{ color:var(--accent); }
+  .site-nav .current{ color:var(--accent); font-weight:600; }
+  .site-nav .current .step{ color:var(--accent); }
+  .site-nav .sep{ color:var(--line-bright); }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{ transition:none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <nav class="site-nav">
+    <span class="current"><span class="step">01</span>Sol System Plot</span>
+    <span class="sep">/</span>
+    <a href="planet-spin.html"><span class="step">02</span>Spin Deck</a>
+    <span class="sep">/</span>
+    <a href="moon-orbits.html"><span class="step">03</span>Orbit Deck</a>
+  </nav>
+
+  <div class="masthead">
+    <div>
+      <p class="masthead-eyebrow">Navigation / Survey Data</p>
+      <h1>Sol System Plot</h1>
+    </div>
+    <div class="masthead-sub">
+      STEP 01 <span class="dot">·</span> PLANETS &amp; SATELLITES<br>
+      REV. AUG 2026
+    </div>
+  </div>
+
+  <p class="intro">
+    First pass at a solar-system reference for our <strong>The Expanse</strong> project:
+    every planet, its spin, its lean, its year — and who's orbiting it. Click a body
+    on the plot below to jump to its console card. Rotation and tilt data next
+    (moon <em>orbits and inclinations</em> are a good candidate for the next step).
+  </p>
+
+  <div class="plot-panel">
+    <canvas id="orbit-canvas" width="1100" height="360" role="img"
+      aria-label="Orbital plot of the Sun and eight planets, log-scaled by distance, clickable"></canvas>
+    <p class="plot-caption">distances log-scaled for legibility — not to scale · body sizes not to scale</p>
+  </div>
+  <div id="plot-tooltip"></div>
+
+  <p class="section-label">Console Cards</p>
+  <div class="grid" id="card-grid"></div>
+
+  <div class="expanse-aside">
+    <h2>Where the show fits in</h2>
+    <p>
+      Several of these bodies are locations from <strong>The Expanse</strong> itself:
+      <strong>Luna</strong> and <strong>Deimos</strong> (Mars's inner moon) both appear
+      as settings, and <strong>Ganymede</strong> — Jupiter's largest moon — is the
+      "breadbasket of the outer planets" in the show. Two more major settings,
+      <strong>Ceres</strong> and <strong>Eros</strong>, aren't moons at all — they're
+      asteroids in the Belt, so they don't get console cards here, but they're
+      candidates for a Belt-focused map later.
+    </p>
+    <p>
+      A couple of those show-location details are from memory rather than a
+      re-check of the source — worth a second look before we treat them as settled
+      if it matters for a future step.
+    </p>
+  </div>
+
+  <footer>
+    ROTATION / AXIAL TILT / ORBITAL PERIOD — NASA planetary fact sheets (stable
+    physical constants).<br>
+    MOON COUNTS — confirmed totals per IAU Minor Planet Center, as of Aug 2026.
+    These rise over time as small irregular moons are confirmed — Saturn alone
+    gained several dozen in early 2026 — so treat the totals as a snapshot, not
+    a ceiling. Named/major moons listed below each total are the stable,
+    long-known ones.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const planets = [
+    {
+      name:'Mercury', glyph:'☿', order:1,
+      rotation:'58.65 d', rotationNote:'retrograde: none',
+      tilt:'0.03°', orbit:'87.97 d',
+      moonTotal:0, moons:[],
+      relDist:0.39, relSize:0.38
+    },
+    {
+      name:'Venus', glyph:'♀', order:2,
+      rotation:'243.0 d', rotationNote:'retrograde',
+      tilt:'177.4°', orbit:'224.70 d',
+      moonTotal:0, moons:[],
+      relDist:0.72, relSize:0.95
+    },
+    {
+      name:'Earth', glyph:'⊕', order:3,
+      rotation:'23h 56m', rotationNote:'0.997 d',
+      tilt:'23.44°', orbit:'365.25 d',
+      moonTotal:1, moons:['Luna'],
+      relDist:1.00, relSize:1.00
+    },
+    {
+      name:'Mars', glyph:'♂', order:4,
+      rotation:'24h 37m', rotationNote:'1.026 d',
+      tilt:'25.19°', orbit:'686.98 d',
+      moonTotal:2, moons:['Phobos','Deimos'],
+      relDist:1.52, relSize:0.53
+    },
+    {
+      name:'Jupiter', glyph:'♃', order:5,
+      rotation:'9h 56m', rotationNote:'0.414 d — fastest spin',
+      tilt:'3.13°', orbit:'11.86 y',
+      moonTotal:101, moons:['Io','Europa','Ganymede','Callisto'],
+      relDist:5.20, relSize:11.2
+    },
+    {
+      name:'Saturn', glyph:'♄', order:6,
+      rotation:'10h 34m', rotationNote:'0.440 d',
+      tilt:'26.73°', orbit:'29.45 y',
+      moonTotal:293, moons:['Titan','Rhea','Iapetus','Dione','Tethys','Enceladus','Mimas'],
+      relDist:9.58, relSize:9.45
+    },
+    {
+      name:'Uranus', glyph:'♅', order:7,
+      rotation:'17h 14m', rotationNote:'0.718 d — retrograde',
+      tilt:'97.77°', orbit:'84.02 y',
+      moonTotal:29, moons:['Titania','Oberon','Umbriel','Ariel','Miranda'],
+      relDist:19.20, relSize:4.01
+    },
+    {
+      name:'Neptune', glyph:'♆', order:8,
+      rotation:'16h 06m', rotationNote:'0.671 d',
+      tilt:'28.32°', orbit:'164.79 y',
+      moonTotal:16, moons:['Triton','Proteus','Nereid'],
+      relDist:30.05, relSize:3.88
+    }
+  ];
+
+  const expanseNote = {
+    Earth:'incl. Luna — show setting',
+    Mars:'incl. Deimos — show setting',
+    Jupiter:'incl. Ganymede — show setting'
+  };
+
+  // ---------- build console cards ----------
+  const grid = document.getElementById('card-grid');
+  planets.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + p.name.toLowerCase();
+
+    const moonListHTML = p.moons.length
+      ? p.moons.join(', ') + (p.moonTotal > p.moons.length ? ', …' : '')
+      : '<span class="none">none confirmed</span>';
+
+    const note = expanseNote[p.name]
+      ? `<div class="moons-fluctuate">${expanseNote[p.name]}</div>` : '';
+
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="card-name"><span class="card-glyph">${p.glyph}</span>${p.name}</div>
+        <div class="card-order">${String(p.order).padStart(2,'0')} / 08</div>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Rotation</span>
+        <span class="stat-value">${p.rotation}<small>${p.rotationNote}</small></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Axial tilt</span>
+        <span class="stat-value">${p.tilt}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Orbital period</span>
+        <span class="stat-value">${p.orbit}</span>
+      </div>
+      <div class="moons-block">
+        <div class="moons-count">
+          <span class="lbl">Confirmed moons</span>
+          <span class="n">${p.moonTotal}</span>
+        </div>
+        <div class="moon-list">${moonListHTML}</div>
+        ${note}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  function flashCard(name){
+    document.querySelectorAll('.card').forEach(c=>c.classList.remove('highlight'));
+    const el = document.getElementById('card-' + name.toLowerCase());
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.classList.add('highlight');
+    setTimeout(()=>el.classList.remove('highlight'), 1800);
+  }
+
+  // ---------- orbital plot canvas ----------
+  const canvas = document.getElementById('orbit-canvas');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('plot-tooltip');
+
+  const CSS_W = 1100, CSS_H = 360;
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = CSS_W * dpr;
+  canvas.height = CSS_H * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = (CSS_H / CSS_W * 100) + 'vw';
+  canvas.style.maxHeight = CSS_H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const sunX = 46, midY = CSS_H/2;
+  const plotW = CSS_W - sunX - 40;
+  const maxLogDist = Math.log(planets[planets.length-1].relDist + 1);
+
+  function xFor(relDist){
+    return sunX + (Math.log(relDist + 1) / maxLogDist) * plotW;
+  }
+  function radiusFor(relSize){
+    return 3.2 + Math.sqrt(relSize) * 2.3;
+  }
+
+  const nodes = planets.map(p=>({
+    ...p, x:xFor(p.relDist), y:midY, r:radiusFor(p.relSize)
+  }));
+
+  function draw(hoverName){
+    ctx.clearRect(0,0,CSS_W,CSS_H);
+
+    // orbit rings (as horizontal guide + faint arcs)
+    ctx.strokeStyle = 'rgba(35,48,61,0.9)';
+    ctx.lineWidth = 1;
+    nodes.forEach(n=>{
+      ctx.beginPath();
+      ctx.ellipse(sunX, midY, n.x - sunX, 68, 0, 0, Math.PI*2);
+      ctx.stroke();
+    });
+
+    // sun
+    const sunGrad = ctx.createRadialGradient(sunX, midY, 0, sunX, midY, 16);
+    sunGrad.addColorStop(0, '#fff3d6');
+    sunGrad.addColorStop(1, '#e8a94a');
+    ctx.beginPath();
+    ctx.fillStyle = sunGrad;
+    ctx.arc(sunX, midY, 11, 0, Math.PI*2);
+    ctx.fill();
+
+    nodes.forEach(n=>{
+      const isHover = n.name === hoverName;
+      ctx.beginPath();
+      ctx.fillStyle = isHover ? '#4fd8c4' : '#7fd8cb';
+      if (!isHover) ctx.fillStyle = 'rgba(79,216,196,0.85)';
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fill();
+
+      if(isHover){
+        ctx.beginPath();
+        ctx.strokeStyle = '#4fd8c4';
+        ctx.lineWidth = 1.5;
+        ctx.arc(n.x, n.y, n.r + 5, 0, Math.PI*2);
+        ctx.stroke();
+      }
+
+      ctx.font = '11px "JetBrains Mono", monospace';
+      ctx.fillStyle = isHover ? '#eaf6f4' : '#7d93a0';
+      ctx.textAlign = 'center';
+      ctx.fillText(n.name.slice(0,4).toUpperCase(), n.x, n.y + n.r + 16);
+    });
+  }
+
+  draw(null);
+
+  function nodeAt(px, py){
+    for(const n of nodes){
+      const dx = px - n.x, dy = py - n.y;
+      if (Math.sqrt(dx*dx + dy*dy) <= Math.max(n.r, 9) + 4) return n;
+    }
+    return null;
+  }
+
+  function canvasPos(evt){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = CSS_W / rect.width;
+    const scaleY = CSS_H / rect.height;
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return { x:(clientX - rect.left) * scaleX, y:(clientY - rect.top) * scaleY, clientX, clientY };
+  }
+
+  canvas.addEventListener('mousemove', (evt)=>{
+    const pos = canvasPos(evt);
+    const n = nodeAt(pos.x, pos.y);
+    draw(n ? n.name : null);
+    canvas.style.cursor = n ? 'pointer' : 'default';
+    if(n){
+      tooltip.innerHTML = `<span class="tt-name">${n.name}</span> · ${n.moonTotal} moon${n.moonTotal===1?'':'s'}`;
+      tooltip.style.left = (pos.clientX + 14) + 'px';
+      tooltip.style.top = (pos.clientY - 10) + 'px';
+      tooltip.classList.add('show');
+    } else {
+      tooltip.classList.remove('show');
+    }
+  });
+
+  canvas.addEventListener('mouseleave', ()=>{
+    draw(null);
+    tooltip.classList.remove('show');
+  });
+
+  canvas.addEventListener('click', (evt)=>{
+    const pos = canvasPos(evt);
+    const n = nodeAt(pos.x, pos.y);
+    if(n) flashCard(n.name);
+  });
+
+  window.addEventListener('resize', ()=>draw(null));
+})();
+</script>

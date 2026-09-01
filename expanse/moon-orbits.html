@@ -1,0 +1,655 @@
+<title>Orbit Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0b0f14;
+    --panel:#121922;
+    --panel-2:#0e141b;
+    --line:#23303d;
+    --line-bright:#33465a;
+    --text:#cfe3e8;
+    --text-dim:#7d93a0;
+    --accent:#4fd8c4;
+    --accent-soft:rgba(79,216,196,0.16);
+    --accent-2:#e8a94a;
+    --accent-2-soft:rgba(232,169,74,0.16);
+    --font-display:'Oxanium',ui-sans-serif,system-ui,sans-serif;
+    --font-body:'Barlow Semi Condensed',ui-sans-serif,system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(79,216,196,0.05), transparent 55%),
+      radial-gradient(ellipse at 90% 0%, rgba(232,169,74,0.04), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--accent-soft); color:var(--text); }
+  a{ color:var(--accent); }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:2.5rem 1.5rem 5rem;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .site-nav{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0.4rem;
+    font-family:var(--font-mono);
+    font-size:0.74rem;
+    letter-spacing:0.03em;
+    margin-bottom:1.2rem;
+  }
+  .site-nav a, .site-nav .current{
+    display:inline-flex;
+    align-items:baseline;
+    gap:0.35rem;
+  }
+  .site-nav a{
+    color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px dotted transparent;
+  }
+  .site-nav a:hover{ color:var(--accent); border-color:var(--line-bright); }
+  .site-nav .step{ color:var(--text-dim); font-size:0.82em; }
+  .site-nav a:hover .step{ color:var(--accent); }
+  .site-nav .current{ color:var(--accent); font-weight:600; }
+  .site-nav .current .step{ color:var(--accent); }
+  .site-nav .sep{ color:var(--line-bright); }
+
+  .masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:1.5rem;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1.1rem;
+    margin-bottom:0.4rem;
+  }
+
+  .masthead-eyebrow{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 0.5rem;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(1.9rem, 4vw, 2.6rem);
+    letter-spacing:0.01em;
+    margin:0;
+    text-wrap:balance;
+    color:#eaf6f4;
+  }
+
+  .masthead-sub{
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    color:var(--text-dim);
+    text-align:right;
+    line-height:1.6;
+  }
+  .masthead-sub .dot{ color:var(--accent-2); }
+
+  .intro{
+    max-width:66ch;
+    color:var(--text-dim);
+    font-size:1.02rem;
+    line-height:1.6;
+    margin:1.1rem 0 1rem;
+  }
+  .intro strong{ color:var(--text); font-weight:600; }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1.2rem;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    color:var(--text-dim);
+    margin:0 0 2.2rem;
+    padding:0.7rem 0.9rem;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+  }
+  .legend b{ color:var(--text); font-weight:600; }
+  .legend .swatch{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:0.4em; vertical-align:middle;
+  }
+
+  /* ---------- section label ---------- */
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0 0 1rem;
+  }
+  .section-label::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  /* ---------- planet tabs ---------- */
+
+  .planet-tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.55rem;
+    margin:0 0 1.7rem;
+  }
+  .planet-tab{
+    font-family:var(--font-mono);
+    font-size:0.8rem;
+    letter-spacing:0.03em;
+    color:var(--text-dim);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:0.5rem 0.95rem;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:0.45rem;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .planet-tab .glyph{ color:var(--accent); font-size:1.05em; }
+  .planet-tab .count{ color:var(--text-dim); font-size:0.85em; }
+  .planet-tab:hover{ color:var(--text); border-color:var(--line-bright); }
+  .planet-tab.active{
+    color:#eaf6f4;
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .planet-tab.active .count{ color:var(--accent); }
+
+  /* ---------- orbit stage ---------- */
+
+  .orbit-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:2.3rem 1.5rem 1.6rem;
+    margin-bottom:1.7rem;
+    position:relative;
+  }
+  .orbit-panel-label{
+    position:absolute;
+    top:-0.55rem;
+    left:1rem;
+    background:var(--bg);
+    padding:0 0.5rem;
+    font-family:var(--font-mono);
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+    white-space:nowrap;
+    max-width:calc(100% - 2rem);
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .orbit-stage{
+    position:relative;
+    width:min(380px, 100%);
+    aspect-ratio:1 / 1;
+    margin:0 auto 1.4rem;
+  }
+
+  .orbit-planet-body{
+    position:absolute;
+    top:50%; left:50%;
+    width:30px; height:30px;
+    margin:-15px 0 0 -15px;
+    border-radius:50%;
+    z-index:5;
+    box-shadow:
+      0 0 18px -2px rgba(0,0,0,0.7),
+      inset -6px -6px 10px rgba(0,0,0,0.45),
+      inset 4px 4px 8px rgba(255,255,255,0.14);
+  }
+  .orbit-planet-ring{
+    position:absolute;
+    top:50%; left:50%;
+    width:56px; height:16px;
+    margin:-8px 0 0 -28px;
+    border:3px solid var(--saturn-ring, transparent);
+    border-radius:50%;
+    opacity:0.6;
+    z-index:4;
+    pointer-events:none;
+  }
+
+  .orbit-ring{
+    position:absolute;
+    top:50%; left:50%;
+    border:1px dashed var(--line-bright);
+    border-radius:50%;
+    opacity:0.5;
+  }
+
+  .orbit-mover{
+    position:absolute;
+    top:50%; left:50%;
+    border-radius:50%;
+    animation-name:orbit-spin;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+  }
+  @keyframes orbit-spin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+
+  .moon-dot{
+    position:absolute;
+    top:0; left:50%;
+    width:11px; height:11px;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .moon-dot::after{
+    content:'';
+    position:absolute;
+    inset:-5px;
+    border-radius:50%;
+    background:radial-gradient(circle, currentColor, transparent 70%);
+    opacity:0.5;
+    z-index:-1;
+  }
+
+  .orbit-legend{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:0.4rem 1.1rem;
+    font-family:var(--font-mono);
+    font-size:0.74rem;
+    color:var(--text-dim);
+    padding-top:0.9rem;
+    border-top:1px solid var(--line);
+  }
+  .orbit-legend .swatch{
+    display:inline-block; width:9px; height:9px; border-radius:50%;
+    margin-right:0.4em; vertical-align:middle;
+  }
+  .orbit-legend .name{ color:var(--text); }
+  .retro-badge{
+    font-family:var(--font-mono);
+    font-size:0.6rem;
+    letter-spacing:0.08em;
+    color:var(--accent-2);
+    border:1px solid var(--accent-2-soft);
+    background:var(--accent-2-soft);
+    border-radius:3px;
+    padding:0.05rem 0.35rem;
+    white-space:nowrap;
+    margin-left:0.4em;
+  }
+
+  /* ---------- moon cards ---------- */
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:1rem;
+  }
+
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1.1rem 1.15rem;
+  }
+  .card::before, .card::after{
+    content:'';
+    position:absolute;
+    width:9px; height:9px;
+    border:1px solid var(--line-bright);
+    opacity:0.7;
+  }
+  .card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:0.15rem;
+  }
+  .card-name{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.16rem;
+    color:#eaf6f4;
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+  }
+  .card-dot{
+    display:inline-block; width:10px; height:10px; border-radius:50%;
+    flex:none;
+  }
+
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:0.3rem 0;
+    border-top:1px solid var(--line);
+    font-size:0.86rem;
+  }
+  .stat-row:first-of-type{ border-top:none; margin-top:0.55rem; }
+  .stat-label{ color:var(--text-dim); font-size:0.78rem; }
+  .stat-value{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    color:var(--text);
+    text-align:right;
+  }
+  .stat-value small{ color:var(--text-dim); font-size:0.78em; margin-left:0.3em; }
+
+  .show-note{
+    margin-top:0.7rem;
+    padding-top:0.6rem;
+    border-top:1px solid var(--line);
+    font-size:0.8rem;
+    line-height:1.5;
+    color:var(--text-dim);
+  }
+  .show-note b{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:0.25rem;
+    font-weight:600;
+  }
+  .show-note.uncertain b{ color:var(--accent-2); }
+
+  @media (prefers-reduced-motion: reduce){
+    .orbit-mover{ animation-play-state:paused; }
+  }
+
+  footer{
+    margin-top:3rem;
+    padding-top:1.2rem;
+    border-top:1px solid var(--line);
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    color:var(--text-dim);
+    line-height:1.7;
+  }
+</style>
+
+<div class="wrap">
+
+  <nav class="site-nav">
+    <a href="solar-system-map.html"><span class="step">01</span>Sol System Plot</a>
+    <span class="sep">/</span>
+    <a href="planet-spin.html"><span class="step">02</span>Spin Deck</a>
+    <span class="sep">/</span>
+    <span class="current"><span class="step">03</span>Orbit Deck</span>
+  </nav>
+
+  <div class="masthead">
+    <div>
+      <p class="masthead-eyebrow">Navigation / Survey Data</p>
+      <h1>Orbit Deck</h1>
+    </div>
+    <div class="masthead-sub">
+      STEP 03 <span class="dot">&middot;</span> MOON SYSTEMS<br>
+      REV. SEP 2026
+    </div>
+  </div>
+
+  <p class="intro">
+    Fifteen of the system's most consequential moons, grouped by planet.
+    Pick a planet to load its system &mdash; only one animates at a time.
+    Orbital <strong>distances</strong> are square-root scaled per system so
+    the innermost and outermost moons both stay visible on screen; orbital
+    <strong>periods</strong> are log-compressed on one shared scale across
+    every planet, so Phobos's 7-hour lap and Iapetus's 79-day lap both
+    animate at a watchable speed &mdash; and a moon that laps faster here
+    laps faster in reality too.
+  </p>
+
+  <div class="legend">
+    <span><b>Ring size</b> = orbital distance (sqrt-scaled, per system)</span>
+    <span><b>Loop speed</b> = orbital period (log-compressed, shared scale)</span>
+    <span><span class="swatch" style="background:var(--accent-2)"></span>badge = retrograde orbit</span>
+  </div>
+
+  <div class="planet-tabs" id="planet-tabs"></div>
+
+  <div class="orbit-panel">
+    <div class="orbit-panel-label" id="orbit-panel-label">MOON ORBITS &mdash; JUPITER SYSTEM</div>
+    <div class="orbit-stage" id="orbit-stage"></div>
+    <div class="orbit-legend" id="orbit-legend"></div>
+  </div>
+
+  <p class="section-label">Console Cards</p>
+  <div class="grid" id="card-grid"></div>
+
+  <footer>
+    DIAMETER / ORBITAL DISTANCE / ORBITAL PERIOD &mdash; NASA/JPL planetary
+    fact sheets and Wikipedia, cross-checked Sep 2026; treat as a stable
+    snapshot, not a live feed. This is a compressed visualization, not a
+    real-time or true-relative-scale simulation &mdash; see the intro above
+    for the two scaling rules in play. Show-note callouts (Ganymede
+    Station, Thoth Station on Iapetus, the destruction of Deimos) reflect
+    the TV series; the Phobos "ground down to a ring" detail is flagged
+    uncertain &mdash; it's a book-continuity development and unconfirmed
+    how far, if at all, the show depicts it.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const planets = [
+    { key:'earth', name:'Earth', glyph:'⊕', hue:'#3f8fce', moons:[
+      { name:'Luna', diameter:3474, distance:384400, period:27.32,
+        color:'#d7d7ce', note:'Earth’s capital world in the UN/Belt political order — Avasarala’s seat of power through most of the story.' }
+    ]},
+    { key:'mars', name:'Mars', glyph:'♂', hue:'#b5502f', moons:[
+      { name:'Phobos', diameter:22, distance:9376, period:0.319,
+        color:'#b08968', note:'MCR listening post. Later ground down into a thin debris ring around Mars — a book-continuity detail; flagged uncertain for the show.', uncertain:true },
+      { name:'Deimos', diameter:12.4, distance:23463, period:1.263,
+        color:'#8a7360', note:'MCR military base, destroyed early in Season 2 by a UN "moon for a moon" nuclear retaliation strike.' }
+    ]},
+    { key:'jupiter', name:'Jupiter', glyph:'♃', hue:'#c99968', moons:[
+      { name:'Io', diameter:3643, distance:421700, period:1.769, color:'#e8d16a' },
+      { name:'Europa', diameter:3122, distance:670900, period:3.551, color:'#cddbe0' },
+      { name:'Ganymede', diameter:5268, distance:1070400, period:7.155,
+        color:'#9a8f7e', note:'Ganymede Station — the Outer Planets’ agricultural breadbasket. It’s the only Jovian moon with its own magnetosphere, which is what lets dome-grown crops survive inside Jupiter’s radiation belt. Major Season 2 setting.' },
+      { name:'Callisto', diameter:4821, distance:1882700, period:16.689, color:'#6e6a63' }
+    ]},
+    { key:'saturn', name:'Saturn', glyph:'♄', hue:'#dcc38a', ring:'rgba(232,201,140,0.6)', moons:[
+      { name:'Enceladus', diameter:504, distance:238037, period:1.370, color:'#eef3f5' },
+      { name:'Rhea', diameter:1528, distance:527040, period:4.518, color:'#c9c2b8' },
+      { name:'Titan', diameter:5150, distance:1221870, period:15.945, color:'#e0a95c' },
+      { name:'Iapetus', diameter:1469, distance:3560820, period:79.33,
+        color:'#b5a488', note:'Thoth Station — a protomolecule research outpost and key location in the Ganymede-incident arc (Caliban’s War).' }
+    ]},
+    { key:'uranus', name:'Uranus', glyph:'♅', hue:'#8fd8d0', moons:[
+      { name:'Miranda', diameter:471.6, distance:129900, period:1.413, color:'#a9c9cf' },
+      { name:'Titania', diameter:1576, distance:436300, period:8.706, color:'#9fb8c2' },
+      { name:'Oberon', diameter:1522, distance:583500, period:13.46, color:'#8aa3ad' }
+    ]},
+    { key:'neptune', name:'Neptune', glyph:'♆', hue:'#3a5fcf', moons:[
+      { name:'Triton', diameter:2706, distance:354760, period:5.877,
+        color:'#b7c9e8', retrograde:true,
+        note:'A captured Kuiper Belt object — the retrograde orbit is the tell. Slowly spiraling inward; in a few billion years it’ll be torn apart into a ring.' }
+    ]}
+  ];
+
+  // ---------- precompute per-system ring radii (sqrt-scaled distance) ----------
+  // expressed as % of the stage's own width/height, so the whole thing
+  // scales with the stage instead of overflowing it on narrow screens
+  const STAGE_MIN_R = 9, STAGE_MAX_R = 45.5;
+  planets.forEach(p => {
+    p.moons.sort((a,b) => a.distance - b.distance);
+    if (p.moons.length === 1){
+      p.moons[0].r = (STAGE_MIN_R + STAGE_MAX_R) / 2;
+      return;
+    }
+    const dMin = p.moons[0].distance, dMax = p.moons[p.moons.length - 1].distance;
+    const sMin = Math.sqrt(dMin), sMax = Math.sqrt(dMax);
+    p.moons.forEach(m => {
+      const t = (Math.sqrt(m.distance) - sMin) / (sMax - sMin);
+      m.r = STAGE_MIN_R + t * (STAGE_MAX_R - STAGE_MIN_R);
+    });
+  });
+
+  // ---------- global log-compressed loop duration (shared across all planets) ----------
+  const allMoons = planets.flatMap(p => p.moons);
+  const periods = allMoons.map(m => m.period);
+  const minP = Math.min(...periods), maxP = Math.max(...periods);
+  const MIN_DUR = 2.5, MAX_DUR = 20;
+  allMoons.forEach(m => {
+    const t = (Math.log(m.period) - Math.log(minP)) / (Math.log(maxP) - Math.log(minP));
+    m.duration = (MIN_DUR + t * (MAX_DUR - MIN_DUR)).toFixed(1);
+  });
+
+  function fmtDistance(km){
+    return km >= 1e6 ? (km/1e6).toFixed(2) + 'M km' : Math.round(km).toLocaleString() + ' km';
+  }
+  function fmtPeriod(days){
+    if (days < 1) return Math.round(days * 24) + ' h';
+    return days.toFixed(days < 10 ? 2 : 1) + ' d';
+  }
+  function fmtDiameter(km){
+    return (km >= 1000 ? km.toLocaleString() : km) + ' km';
+  }
+
+  // ---------- tabs ----------
+  const tabsEl = document.getElementById('planet-tabs');
+  planets.forEach(p => {
+    const tab = document.createElement('button');
+    tab.className = 'planet-tab';
+    tab.id = 'tab-' + p.key;
+    tab.innerHTML = `<span class="glyph">${p.glyph}</span>${p.name}<span class="count">&middot; ${p.moons.length}</span>`;
+    tab.addEventListener('click', () => selectPlanet(p.key));
+    tabsEl.appendChild(tab);
+  });
+
+  const stageEl = document.getElementById('orbit-stage');
+  const legendEl = document.getElementById('orbit-legend');
+  const labelEl = document.getElementById('orbit-panel-label');
+  const gridEl = document.getElementById('card-grid');
+
+  function selectPlanet(key){
+    const p = planets.find(pl => pl.key === key);
+
+    document.querySelectorAll('.planet-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + key).classList.add('active');
+
+    labelEl.textContent = `MOON ORBITS — ${p.name.toUpperCase()} SYSTEM, SQRT-SCALE DISTANCE / LOG-COMPRESSED PERIOD`;
+
+    // stage: rebuild from scratch so only the selected system is ever animating
+    stageEl.innerHTML = '';
+
+    const body = document.createElement('div');
+    body.className = 'orbit-planet-body';
+    body.style.background = p.hue;
+    stageEl.appendChild(body);
+
+    if (p.ring){
+      const ringEl = document.createElement('div');
+      ringEl.className = 'orbit-planet-ring';
+      ringEl.style.setProperty('--saturn-ring', p.ring);
+      stageEl.appendChild(ringEl);
+    }
+
+    p.moons.forEach(m => {
+      const ring = document.createElement('div');
+      ring.className = 'orbit-ring';
+      ring.style.width = ring.style.height = (m.r * 2) + '%';
+      ring.style.marginLeft = ring.style.marginTop = -m.r + '%';
+      stageEl.appendChild(ring);
+
+      const mover = document.createElement('div');
+      mover.className = 'orbit-mover';
+      mover.style.width = mover.style.height = (m.r * 2) + '%';
+      mover.style.marginLeft = mover.style.marginTop = -m.r + '%';
+      mover.style.animationDuration = m.duration + 's';
+      mover.style.animationDirection = m.retrograde ? 'reverse' : 'normal';
+
+      const dot = document.createElement('div');
+      dot.className = 'moon-dot';
+      dot.style.background = m.color;
+      dot.style.color = m.color;
+      mover.appendChild(dot);
+
+      stageEl.appendChild(mover);
+    });
+
+    // legend
+    legendEl.innerHTML = p.moons.map(m => `
+      <span>
+        <span class="swatch" style="background:${m.color}"></span>
+        <span class="name">${m.name}</span> &middot; ${m.duration}s loop
+        ${m.retrograde ? '<span class="retro-badge">RETRO</span>' : ''}
+      </span>
+    `).join('');
+
+    // cards
+    gridEl.innerHTML = '';
+    p.moons.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-head">
+          <div class="card-name"><span class="card-dot" style="background:${m.color}"></span>${m.name}</div>
+          ${m.retrograde ? '<span class="retro-badge">RETROGRADE</span>' : ''}
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Diameter</span>
+          <span class="stat-value">${fmtDiameter(m.diameter)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Orbital distance</span>
+          <span class="stat-value">${fmtDistance(m.distance)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Orbital period</span>
+          <span class="stat-value">${fmtPeriod(m.period)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Loop (compressed)</span>
+          <span class="stat-value">${m.duration}s</span>
+        </div>
+        ${m.note ? `<div class="show-note${m.uncertain ? ' uncertain' : ''}"><b>${m.uncertain ? 'Show note — unverified' : 'Show note'}</b>${m.note}</div>` : ''}
+      `;
+      gridEl.appendChild(card);
+    });
+  }
+
+  selectPlanet('jupiter');
+})();
+</script>

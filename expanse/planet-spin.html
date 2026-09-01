@@ -1,0 +1,499 @@
+<title>Spin Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0b0f14;
+    --panel:#121922;
+    --panel-2:#0e141b;
+    --line:#23303d;
+    --line-bright:#33465a;
+    --text:#cfe3e8;
+    --text-dim:#7d93a0;
+    --accent:#4fd8c4;
+    --accent-soft:rgba(79,216,196,0.16);
+    --accent-2:#e8a94a;
+    --accent-2-soft:rgba(232,169,74,0.16);
+    --font-display:'Oxanium',ui-sans-serif,system-ui,sans-serif;
+    --font-body:'Barlow Semi Condensed',ui-sans-serif,system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(79,216,196,0.05), transparent 55%),
+      radial-gradient(ellipse at 90% 0%, rgba(232,169,74,0.04), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--accent-soft); color:var(--text); }
+  a{ color:var(--accent); }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:2.5rem 1.5rem 5rem;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .site-nav{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0.4rem;
+    font-family:var(--font-mono);
+    font-size:0.74rem;
+    letter-spacing:0.03em;
+    margin-bottom:1.2rem;
+  }
+  .site-nav a, .site-nav .current{
+    display:inline-flex;
+    align-items:baseline;
+    gap:0.35rem;
+  }
+  .site-nav a{
+    color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px dotted transparent;
+  }
+  .site-nav a:hover{ color:var(--accent); border-color:var(--line-bright); }
+  .site-nav .step{ color:var(--text-dim); font-size:0.82em; }
+  .site-nav a:hover .step{ color:var(--accent); }
+  .site-nav .current{ color:var(--accent); font-weight:600; }
+  .site-nav .current .step{ color:var(--accent); }
+  .site-nav .sep{ color:var(--line-bright); }
+
+  .masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:1.5rem;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1.1rem;
+    margin-bottom:0.4rem;
+  }
+
+  .masthead-eyebrow{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 0.5rem;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(1.9rem, 4vw, 2.6rem);
+    letter-spacing:0.01em;
+    margin:0;
+    text-wrap:balance;
+    color:#eaf6f4;
+  }
+
+  .masthead-sub{
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    color:var(--text-dim);
+    text-align:right;
+    line-height:1.6;
+  }
+  .masthead-sub .dot{ color:var(--accent-2); }
+
+  .intro{
+    max-width:64ch;
+    color:var(--text-dim);
+    font-size:1.02rem;
+    line-height:1.6;
+    margin:1.1rem 0 1rem;
+  }
+  .intro strong{ color:var(--text); font-weight:600; }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1.2rem;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    color:var(--text-dim);
+    margin:0 0 2.2rem;
+    padding:0.7rem 0.9rem;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+  }
+  .legend b{ color:var(--text); font-weight:600; }
+  .legend .swatch{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:0.4em; vertical-align:middle;
+  }
+
+  /* ---------- section label ---------- */
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0 0 1rem;
+  }
+  .section-label::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  /* ---------- spin cards ---------- */
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(272px, 1fr));
+    gap:1rem;
+  }
+
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1.1rem 1.15rem;
+  }
+  .card::before, .card::after{
+    content:'';
+    position:absolute;
+    width:9px; height:9px;
+    border:1px solid var(--line-bright);
+    opacity:0.7;
+  }
+  .card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:0.5rem;
+  }
+  .card-order{ font-family:var(--font-mono); font-size:0.68rem; color:var(--text-dim); letter-spacing:0.08em; }
+  .card-name{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.22rem;
+    color:#eaf6f4;
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+  }
+  .card-glyph{ color:var(--accent); font-weight:400; font-size:1.05em; }
+
+  .retro-badge{
+    font-family:var(--font-mono);
+    font-size:0.6rem;
+    letter-spacing:0.08em;
+    color:var(--accent-2);
+    border:1px solid var(--accent-2-soft);
+    background:var(--accent-2-soft);
+    border-radius:3px;
+    padding:0.1rem 0.4rem;
+    white-space:nowrap;
+  }
+
+  /* stage */
+
+  .stage{
+    height:172px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    margin:0.3rem 0 0.6rem;
+  }
+
+  .axis-frame{
+    position:relative;
+    width:112px;
+    height:112px;
+  }
+
+  .pole-axis{
+    position:absolute;
+    left:50%;
+    top:-20px;
+    bottom:-20px;
+    width:1px;
+    background:linear-gradient(var(--planet-line), var(--planet-line));
+    opacity:0.45;
+    transform:translateX(-50%);
+  }
+  .pole-axis::before, .pole-axis::after{
+    content:'';
+    position:absolute;
+    left:50%;
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--planet-line);
+    opacity:0.7;
+    transform:translateX(-50%);
+  }
+  .pole-axis::before{ top:-2px; }
+  .pole-axis::after{ bottom:-2px; }
+
+  .ring{
+    position:absolute;
+    left:50%; top:50%;
+    width:190%; height:52%;
+    transform:translate(-50%,-50%);
+    border:5px solid var(--ring-color, transparent);
+    border-radius:50%;
+    opacity:0.55;
+    pointer-events:none;
+  }
+
+  .sphere{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    overflow:hidden;
+    box-shadow:
+      inset -16px -16px 30px rgba(0,0,0,0.55),
+      inset 10px 10px 20px rgba(255,255,255,0.10),
+      0 6px 18px -6px rgba(0,0,0,0.6);
+  }
+
+  .sphere-texture{
+    position:absolute;
+    inset:-2px;
+    background-color:var(--planet-hue);
+    background-image:
+      repeating-linear-gradient(90deg,
+        rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 3px,
+        transparent 3px, transparent 17px),
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,0.07) 0px, rgba(255,255,255,0.07) 2px,
+        transparent 2px, transparent 29px);
+    background-repeat:repeat-x;
+    animation:spin-tex var(--dur) linear infinite;
+    animation-direction:var(--dir, normal);
+  }
+  @keyframes spin-tex{
+    from{ background-position:0 0, 0 0; }
+    to{ background-position:-34px 0, -58px 0; }
+  }
+
+  .sphere-shade{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,0.5), rgba(255,255,255,0) 44%),
+      radial-gradient(circle at 72% 78%, rgba(0,0,0,0.5), rgba(0,0,0,0) 58%);
+    pointer-events:none;
+  }
+
+  /* stats */
+
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:0.3rem 0;
+    border-top:1px solid var(--line);
+    font-size:0.86rem;
+  }
+  .stat-row:first-of-type{ border-top:none; }
+  .stat-label{ color:var(--text-dim); font-size:0.78rem; }
+  .stat-value{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    color:var(--text);
+    text-align:right;
+  }
+  .stat-value small{ color:var(--text-dim); font-size:0.78em; margin-left:0.3em; }
+
+  .loop-note{
+    font-family:var(--font-mono);
+    font-size:0.64rem;
+    color:var(--text-dim);
+    text-align:center;
+    margin-top:-0.2rem;
+    margin-bottom:0.55rem;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .sphere-texture{ animation-play-state:paused; }
+  }
+
+  footer{
+    margin-top:3rem;
+    padding-top:1.2rem;
+    border-top:1px solid var(--line);
+    font-family:var(--font-mono);
+    font-size:0.7rem;
+    color:var(--text-dim);
+    line-height:1.7;
+  }
+</style>
+
+<div class="wrap">
+
+  <nav class="site-nav">
+    <a href="solar-system-map.html"><span class="step">01</span>Sol System Plot</a>
+    <span class="sep">/</span>
+    <span class="current"><span class="step">02</span>Spin Deck</span>
+    <span class="sep">/</span>
+    <a href="moon-orbits.html"><span class="step">03</span>Orbit Deck</a>
+  </nav>
+
+  <div class="masthead">
+    <div>
+      <p class="masthead-eyebrow">Navigation / Survey Data</p>
+      <h1>Spin Deck</h1>
+    </div>
+    <div class="masthead-sub">
+      STEP 02 <span class="dot">&middot;</span> ROTATION &amp; TILT<br>
+      REV. AUG 2026
+    </div>
+  </div>
+
+  <p class="intro">
+    Each planet, spinning on its real axial tilt. Spin speed is
+    <strong>log-compressed</strong> so Venus's 243-day day and Jupiter's
+    10-hour day are both watchable in the same loop — the order is real
+    (Jupiter fastest, Venus slowest), the literal ~580&times; gap between
+    them isn't.
+  </p>
+
+  <div class="legend">
+    <span><b>Tilt</b> = lean of the axis line from vertical</span>
+    <span><b>Spin direction</b> reversed = retrograde rotation</span>
+    <span><span class="swatch" style="background:var(--accent-2)"></span>badge = spins backward relative to its orbit</span>
+  </div>
+
+  <p class="section-label">Console Cards</p>
+  <div class="grid" id="card-grid"></div>
+
+  <footer>
+    ROTATION / AXIAL TILT / ORBITAL PERIOD / ORBITAL SPEED — NASA planetary
+    fact sheets. Spin-loop durations are a log-compressed visualization,
+    not a real-time simulation — see the intro above. Venus and Uranus
+    show a reversed spin because their axial tilt exceeds 90&deg;, the
+    standard convention for calling a rotation retrograde.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const planets = [
+    { name:'Mercury', glyph:'☿', order:1,
+      rotation:'58.65 d', rotationNote:'', tilt:0.03,
+      orbit:'87.97 d', orbitalSpeed:'47.4 km/s',
+      rotationHours:1407.6, hue:'#9c9691', line:'#c9c3bd' },
+    { name:'Venus', glyph:'♀', order:2,
+      rotation:'243.0 d', rotationNote:'', tilt:177.4,
+      orbit:'224.70 d', orbitalSpeed:'35.0 km/s',
+      rotationHours:5832, hue:'#e0c98f', line:'#f3e6c3' },
+    { name:'Earth', glyph:'⊕', order:3,
+      rotation:'23h 56m', rotationNote:'', tilt:23.44,
+      orbit:'365.25 d', orbitalSpeed:'29.8 km/s',
+      rotationHours:23.934, hue:'#3f8fce', line:'#9fd4ee' },
+    { name:'Mars', glyph:'♂', order:4,
+      rotation:'24h 37m', rotationNote:'', tilt:25.19,
+      orbit:'686.98 d', orbitalSpeed:'24.1 km/s',
+      rotationHours:24.617, hue:'#b5502f', line:'#e8a583' },
+    { name:'Jupiter', glyph:'♃', order:5,
+      rotation:'9h 56m', rotationNote:'fastest spin', tilt:3.13,
+      orbit:'11.86 y', orbitalSpeed:'13.1 km/s',
+      rotationHours:9.93, hue:'#c99968', line:'#eccda3' },
+    { name:'Saturn', glyph:'♄', order:6,
+      rotation:'10h 34m', rotationNote:'', tilt:26.73,
+      orbit:'29.45 y', orbitalSpeed:'9.7 km/s',
+      rotationHours:10.57, hue:'#dcc38a', line:'#f0e1b8',
+      ring:'rgba(232,201,140,0.6)' },
+    { name:'Uranus', glyph:'♅', order:7,
+      rotation:'17h 14m', rotationNote:'', tilt:97.77,
+      orbit:'84.02 y', orbitalSpeed:'6.8 km/s',
+      rotationHours:17.23, hue:'#8fd8d0', line:'#c9f0ea' },
+    { name:'Neptune', glyph:'♆', order:8,
+      rotation:'16h 06m', rotationNote:'', tilt:28.32,
+      orbit:'164.79 y', orbitalSpeed:'5.4 km/s',
+      rotationHours:16.11, hue:'#3a5fcf', line:'#a8b8f2' }
+  ];
+
+  const hours = planets.map(p => p.rotationHours);
+  const minH = Math.min(...hours), maxH = Math.max(...hours);
+  const minDur = 2, maxDur = 10;
+  const earthHours = planets.find(p => p.name === 'Earth').rotationHours;
+
+  planets.forEach(p => {
+    const t = (Math.log(p.rotationHours) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH));
+    p.spinDuration = (minDur + t * (maxDur - minDur)).toFixed(1);
+    p.retrograde = p.tilt > 90;
+    p.visualTilt = p.retrograde ? (180 - p.tilt) : p.tilt;
+    p.spinRate = (earthHours / p.rotationHours);
+  });
+
+  const grid = document.getElementById('card-grid');
+
+  planets.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const badge = p.retrograde
+      ? '<span class="retro-badge">RETROGRADE</span>' : '';
+
+    const ringEl = p.ring
+      ? `<div class="ring" style="--ring-color:${p.ring}"></div>` : '';
+
+    const spinRateLabel = p.spinRate >= 1
+      ? `${p.spinRate.toFixed(2)}&times; Earth's rate`
+      : `1/${(1/p.spinRate).toFixed(1)}&times; Earth's rate`;
+
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="card-name"><span class="card-glyph">${p.glyph}</span>${p.name}</div>
+        <div class="card-order">${String(p.order).padStart(2,'0')} / 08</div>
+      </div>
+      ${badge ? `<div style="margin-bottom:0.5rem;">${badge}</div>` : ''}
+      <div class="stage">
+        <div class="axis-frame" style="transform:rotate(${p.visualTilt}deg); --planet-line:${p.line};">
+          ${ringEl}
+          <div class="pole-axis"></div>
+          <div class="sphere">
+            <div class="sphere-texture" style="--planet-hue:${p.hue}; --dur:${p.spinDuration}s; --dir:${p.retrograde ? 'reverse' : 'normal'};"></div>
+            <div class="sphere-shade"></div>
+          </div>
+        </div>
+      </div>
+      <div class="loop-note">spin loop ${p.spinDuration}s &middot; compressed, not real-time</div>
+      <div class="stat-row">
+        <span class="stat-label">Day length</span>
+        <span class="stat-value">${p.rotation}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Axial tilt</span>
+        <span class="stat-value">${p.tilt}&deg;</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Year length</span>
+        <span class="stat-value">${p.orbit}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Orbital speed</span>
+        <span class="stat-value">${p.orbitalSpeed}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Spin rate</span>
+        <span class="stat-value">${spinRateLabel}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+</script>
